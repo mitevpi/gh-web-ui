@@ -4,7 +4,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:local="clr-namespace:GHUI"
-        mc:Ignorable="d" Width="535.111" Height="199.333">
+        mc:Ignorable="d" Width="525.778" Height="617.333">
     <Grid Background="White">
         <Grid.ColumnDefinitions>
         </Grid.ColumnDefinitions>

@@ -19,9 +19,6 @@ namespace GHUI
         private mshtml.HTMLDocument Doc => (mshtml.HTMLDocument) webBrowser1.Document;
         private mshtml.HTMLInputTextElement Input => Doc.getElementById("fname") as mshtml.HTMLInputTextElement;
 
-        private string _htmlString =
-            "<html><head></head><body>First row<br>Second row<br><input type='text' id='fname' name='fname'><br><br></body></html>";
-
         private string HtmlString2 => ReadHtml();
         private string _htmlStringContainer = "";
 
