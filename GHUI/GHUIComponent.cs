@@ -61,7 +61,7 @@ namespace GHUI
             }
             else
             {
-                Wwindow = new WebWindow();
+                Wwindow = new WebWindow(da);
                 Wwindow.Show();
                 da.SetData(0, Wwindow.Value);
                 Initialized = true;
