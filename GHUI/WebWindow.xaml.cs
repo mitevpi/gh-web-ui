@@ -34,9 +34,9 @@ namespace GHUI
         private mshtml.HTMLInputTextElement Input => Doc.getElementById("fname") as mshtml.HTMLInputTextElement;
 
         // HTML READ
-        private string HtmlString2 => ReadHtml();
+        private string _htmlString2;
         private string _htmlStringContainer = "";
-        private FileSystemWatcher watcher;
+        private FileSystemWatcher _watcher;
 
         public string Value
         {
@@ -54,14 +54,15 @@ namespace GHUI
         {
             _gh = da;
             InitializeComponent();
-            webBrowser1.NavigateToString(HtmlString2);
+            _htmlString2 = ReadHtml();
+            webBrowser1.NavigateToString(_htmlString2);
             MonitorTailOfFile();
             //HTMLInputTextElementEvents_onchangeEventHandler temp = (HTMLInputTextElementEvents_onchangeEventHandler) Input.onchange;
             //Input.onchange += inputOnChange();
         }
 
 
-        private void onchangeInput(object sender, EventArgs e)
+        private void OnchangeInput(object sender, EventArgs e)
         {
             //HtmlHandler htmlHandler = (HtmlHandler)sender;
             //IHTMLElement element = htmlHandler.SourceHTMLWindow.@event.srcElement;
@@ -86,7 +87,7 @@ namespace GHUI
 
         public void MonitorTailOfFile()
         {
-            watcher = new FileSystemWatcher
+            _watcher = new FileSystemWatcher
             {
                 Path = Directory,
                 NotifyFilter = NotifyFilters.LastAccess
@@ -95,16 +96,18 @@ namespace GHUI
                                | NotifyFilters.DirectoryName,
                 Filter = "*.html"
             };
-            watcher.Changed += new FileSystemEventHandler(OnChanged);
-            watcher.EnableRaisingEvents = true;
+            _watcher.Changed += new FileSystemEventHandler(OnChanged);
+            _watcher.EnableRaisingEvents = true;
+
         }
 
         private void OnChanged(object source, FileSystemEventArgs e)
         {
             // Specify what is done when a file is changed, created, or deleted.
-            watcher.Dispose();
-            watcher = null;
-            webBrowser1.NavigateToString(HtmlString2);
+            _watcher.Dispose();
+            _watcher = null;
+            _htmlString2 = ReadHtml();
+            //webBrowser1.NavigateToString(HtmlString2);
             Console.WriteLine($"File: {e.FullPath} {e.ChangeType}");
             MonitorTailOfFile();
         }
