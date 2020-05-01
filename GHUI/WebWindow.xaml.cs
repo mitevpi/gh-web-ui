@@ -34,9 +34,20 @@ namespace GHUI
         private mshtml.HTMLInputTextElement Input => Doc.getElementById("fname") as mshtml.HTMLInputTextElement;
 
         // HTML READ
-        private string _htmlString2;
         private string _htmlStringContainer = "";
         private FileSystemWatcher _watcher;
+
+        private string _htmlString;
+
+        public string HtmlString
+        {
+            get => _htmlString;
+            set
+            {
+                _htmlString = value;
+                OnHtmlChanged();
+            }
+        }
 
         public string Value
         {
@@ -54,8 +65,8 @@ namespace GHUI
         {
             _gh = da;
             InitializeComponent();
-            _htmlString2 = ReadHtml();
-            webBrowser1.NavigateToString(_htmlString2);
+            HtmlString = ReadHtml();
+            webBrowser1.NavigateToString(HtmlString);
             MonitorTailOfFile();
             //HTMLInputTextElementEvents_onchangeEventHandler temp = (HTMLInputTextElementEvents_onchangeEventHandler) Input.onchange;
             //Input.onchange += inputOnChange();
@@ -77,12 +88,16 @@ namespace GHUI
             return File.ReadAllText(_htmlStringContainer);
         }
 
-        // Create the OnPropertyChanged method to raise the event
-        // The calling member's name will be used as the parameter.
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
             //_gh.SetData(0, Value);
+        }
+
+        protected void OnHtmlChanged([CallerMemberName] string name = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            //webBrowser1.NavigateToString(HtmlString);
         }
 
         public void MonitorTailOfFile()
@@ -98,7 +113,6 @@ namespace GHUI
             };
             _watcher.Changed += new FileSystemEventHandler(OnChanged);
             _watcher.EnableRaisingEvents = true;
-
         }
 
         private void OnChanged(object source, FileSystemEventArgs e)
@@ -106,9 +120,8 @@ namespace GHUI
             // Specify what is done when a file is changed, created, or deleted.
             _watcher.Dispose();
             _watcher = null;
-            _htmlString2 = ReadHtml();
-            //webBrowser1.NavigateToString(HtmlString2);
-            Console.WriteLine($"File: {e.FullPath} {e.ChangeType}");
+            HtmlString = ReadHtml();
+            Dispatcher.Invoke(() => webBrowser1.NavigateToString(HtmlString));
             MonitorTailOfFile();
         }
     }
