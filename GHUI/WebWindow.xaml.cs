@@ -54,7 +54,7 @@ namespace GHUI
             _gh = da;
             InitializeComponent();
             webBrowser1.NavigateToString(HtmlString2);
-            MonitorTailOfFile(System.IO.Path.Combine(Directory, "Window.html"));
+            MonitorTailOfFile();
             //HTMLInputTextElementEvents_onchangeEventHandler temp = (HTMLInputTextElementEvents_onchangeEventHandler) Input.onchange;
             //Input.onchange += inputOnChange();
         }
@@ -89,50 +89,42 @@ namespace GHUI
             //_gh.SetData(0, Value);
         }
 
-        public static void MonitorTailOfFile(string filePath)
+        public void MonitorTailOfFile()
         {
             Task.Run(() =>
             {
-                long initialFileSize = new FileInfo(filePath).Length;
-                long lastReadLength = initialFileSize - 1024;
-                if (lastReadLength < 0) lastReadLength = 0;
-
-                while (true)
+                using (FileSystemWatcher watcher = new FileSystemWatcher())
                 {
-                    try
-                    {
-                        long fileSize = new FileInfo(filePath).Length;
-                        if (fileSize > lastReadLength)
-                        {
-                            using (FileStream fs = new FileStream(filePath, FileMode.Open, FileAccess.Read,
-                                FileShare.ReadWrite))
-                            {
-                                fs.Seek(lastReadLength, SeekOrigin.Begin);
-                                byte[] buffer = new byte[1024];
+                    watcher.Path = Directory;
 
-                                while (true)
-                                {
-                                    int bytesRead = fs.Read(buffer, 0, buffer.Length);
-                                    lastReadLength += bytesRead;
+                    // Watch for changes in LastAccess and LastWrite times, and
+                    // the renaming of files or directories.
+                    watcher.NotifyFilter = NotifyFilters.LastAccess
+                                           | NotifyFilters.LastWrite
+                                           | NotifyFilters.FileName
+                                           | NotifyFilters.DirectoryName;
 
-                                    if (bytesRead == 0)
-                                        break;
+                    // Only watch text files.
+                    watcher.Filter = "*.html";
 
-                                    string text = ASCIIEncoding.ASCII.GetString(buffer, 0, bytesRead);
+                    // Add event handlers.
+                    watcher.Changed += OnChanged;
 
-                                    Console.Write(text);
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        throw;
-                    }
+                    // Begin watching.
+                    watcher.EnableRaisingEvents = true;
 
-                    Thread.Sleep(1000);
+                    // Wait for the user to quit the program.
+                    //Console.WriteLine("Press 'q' to quit the sample.");
+                    while (Console.Read() != 'q') ;
                 }
             });
+        }
+
+        private void OnChanged(object source, FileSystemEventArgs e)
+        {
+            // Specify what is done when a file is changed, created, or deleted.
+            webBrowser1.NavigateToString(HtmlString2);
+            Console.WriteLine($"File: {e.FullPath} {e.ChangeType}");
         }
     }
 }
