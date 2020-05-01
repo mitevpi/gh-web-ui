@@ -12,7 +12,7 @@ namespace WpfChromium
     /// </summary>
     public partial class MainWindow : Window
     {
-        public ChromiumWebBrowser chromeBrowser;
+        public ChromiumWebBrowser ChromeBrowser;
         public MainWindow()
         {
             InitializeCef();
@@ -25,7 +25,7 @@ namespace WpfChromium
             // Initialize cef with the provided settings
             Cef.Initialize(settings);
             // Create a browser component
-            chromeBrowser = new ChromiumWebBrowser("http://ourcodeworld.com");
+            ChromeBrowser = new ChromiumWebBrowser("http://ourcodeworld.com");
             // Add it to the form and fill it to the form window.
             //this.Controls.Add(chromeBrowser);
             //chromeBrowser.Dock = DockStyle.Fill;

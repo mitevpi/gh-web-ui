@@ -13,42 +13,36 @@ namespace GHUI
     /// </summary>
     public partial class WebWindow : Window
     {
-        public string value => _input?.value;
-
-        private mshtml.HTMLDocument _doc => (mshtml.HTMLDocument) webBrowser1.Document;
-        private mshtml.HTMLInputTextElement _input => _doc.getElementById("fname") as mshtml.HTMLInputTextElement;
+        private static string Path => Assembly.GetExecutingAssembly().Location;
+        private static readonly string Directory = System.IO.Path.GetDirectoryName(Path);
+        public string Value => Input?.value;
+        private mshtml.HTMLDocument Doc => (mshtml.HTMLDocument) webBrowser1.Document;
+        private mshtml.HTMLInputTextElement Input => Doc.getElementById("fname") as mshtml.HTMLInputTextElement;
 
         private string _htmlString =
             "<html><head></head><body>First row<br>Second row<br><input type='text' id='fname' name='fname'><br><br></body></html>";
 
-        private string _htmlString2 => ReadHtml();
-        private string _htmlStringContainer;
+        private string HtmlString2 => ReadHtml();
+        private string _htmlStringContainer = "";
 
         public WebWindow()
         {
             InitializeComponent();
-            webBrowser1.NavigateToString(_htmlString2);
-            ReadHtml();
-        }
-
-        private void Test()
-        {
+            webBrowser1.NavigateToString(HtmlString2);
         }
 
         private string ReadHtml()
         {
-            string path = Assembly.GetExecutingAssembly().Location;
-            string directory = Path.GetDirectoryName(path);
-
-            string file = Path.Combine(directory, "Window.html");
-            if (File.Exists(file))
-            {
-                _htmlStringContainer = file;
-            }
-
+            string file = System.IO.Path.Combine(Directory, "Window.html");
+            if (!File.Exists(file)) return _htmlStringContainer;
+            _htmlStringContainer = file;
             return File.ReadAllText(_htmlStringContainer);
         }
 
+
+        private void Test()
+        {
+        }
 
         private void Button_OnClick(object sender, RoutedEventArgs e)
         {

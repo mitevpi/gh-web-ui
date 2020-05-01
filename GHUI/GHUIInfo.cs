@@ -4,7 +4,7 @@ using Grasshopper.Kernel;
 
 namespace GHUI
 {
-    public class GHUIInfo : GH_AssemblyInfo
+    public class GhuiInfo : GH_AssemblyInfo
     {
         public override string Name
         {

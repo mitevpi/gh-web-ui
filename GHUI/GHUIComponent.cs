@@ -4,7 +4,7 @@ using Grasshopper.Kernel;
 
 namespace GHUI
 {
-    public class GHUIComponent : GH_Component
+    public class GhuiComponent : GH_Component
     {
         public bool Initialized;
         public WebWindow Wwindow;
@@ -16,7 +16,7 @@ namespace GHUI
         /// Subcategory the panel. If you use non-existing tab or panel names, 
         /// new tabs/panels will automatically be created.
         /// </summary>
-        public GHUIComponent()
+        public GhuiComponent()
             : base("GrasshopperUI", "GHUI",
                 "Launch a UI Window.",
                 "UI", "Window")
@@ -42,28 +42,28 @@ namespace GHUI
         /// <summary>
         /// This is the method that actually does the work.
         /// </summary>
-        /// <param name="DA">The DA object can be used to retrieve data from input parameters and 
+        /// <param name="da">The DA object can be used to retrieve data from input parameters and 
         /// to store data in output parameters.</param>
-        protected override void SolveInstance(IGH_DataAccess DA)
+        protected override void SolveInstance(IGH_DataAccess da)
         {
             bool refresh = false;
 
             // Use the DA object to retrieve the data inside the input parameters.
             // If the retrieval fails (for example if there is no data) we need to abort.
-            if (!DA.GetData(0, ref refresh))
+            if (!da.GetData(0, ref refresh))
             {
                 return;
             }
 
             if (Initialized)
             {
-                DA.SetData(0, Wwindow.value);
+                da.SetData(0, Wwindow.Value);
             }
             else
             {
                 Wwindow = new WebWindow();
                 Wwindow.Show();
-                DA.SetData(0, Wwindow.value);
+                da.SetData(0, Wwindow.Value);
                 Initialized = true;
             }
         }
