@@ -72,13 +72,6 @@ namespace GHUI
             //Input.onchange += inputOnChange();
         }
 
-
-        private void OnchangeInput(object sender, EventArgs e)
-        {
-            //HtmlHandler htmlHandler = (HtmlHandler)sender;
-            //IHTMLElement element = htmlHandler.SourceHTMLWindow.@event.srcElement;
-        }
-
         private string ReadHtml()
         {
             string file = System.IO.Path.Combine(Directory, "Window.html");
