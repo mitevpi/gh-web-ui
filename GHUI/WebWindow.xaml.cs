@@ -90,6 +90,10 @@ namespace GHUI
         protected void OnHtmlChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            if (_watcher == null)
+            {
+                MonitorTailOfFile();
+            }
             //webBrowser1.NavigateToString(HtmlString);
         }
 
@@ -113,9 +117,11 @@ namespace GHUI
             // Specify what is done when a file is changed, created, or deleted.
             _watcher.Dispose();
             _watcher = null;
-            HtmlString = ReadHtml();
-            Dispatcher.Invoke(() => webBrowser1.NavigateToString(HtmlString));
-            MonitorTailOfFile();
+            Dispatcher.Invoke(() =>
+            {
+                HtmlString = ReadHtml();
+                webBrowser1.NavigateToString(HtmlString);
+            });
         }
     }
 }
