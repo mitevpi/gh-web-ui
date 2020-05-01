@@ -1,0 +1,21 @@
+﻿<Window x:Class="GHUI.WebWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:GHUI"
+        xmlns:cefSharp="clr-namespace:CefSharp.Wpf;assembly=CefSharp.Wpf"
+        mc:Ignorable="d" Width="535.111" Height="199.333">
+    <Grid Background="White">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="576*"/>
+            <ColumnDefinition Width="217*"/>
+        </Grid.ColumnDefinitions>
+        <Button x:Name="Button" Content="Button" Margin="9.667,10,0,110.667" Click="Button_OnClick" Grid.Column="1" HorizontalAlignment="Left" Width="60" />
+        <WebBrowser Height="149" Name="webBrowser1" VerticalAlignment="Top" Margin="19,10,10.333,0" />
+        <!--<cefSharp:ChromiumWebBrowser
+            x:Name="ChromiumWebBrowser"
+            Address="http://www.google.com" Margin="10,98,10,10.333" BorderBrush="Black" Background="#FFA81515" />-->
+    </Grid>
+
+</Window>
