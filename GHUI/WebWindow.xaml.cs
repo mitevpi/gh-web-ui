@@ -18,11 +18,14 @@ namespace GHUI
     [ComVisible(true)]
     public partial class WebWindow : Window
     {
-        private string _htmlPath;
         // GENERIC SETUP
         public event PropertyChangedEventHandler PropertyChanged;
-        private static string Path => Assembly.GetExecutingAssembly().Location;
-        private static readonly string Directory = System.IO.Path.GetDirectoryName(Path);
+        //private static string Path => Assembly.GetExecutingAssembly().Location;
+
+
+        private string _path;
+        private string Directory => Path.GetDirectoryName(_path);
+
 
         // HTML QUERY
         private HTMLDocument Doc => (HTMLDocument) WebBrowser.Document;
@@ -47,7 +50,7 @@ namespace GHUI
 
         public WebWindow(string path)
         {
-            _htmlPath = path;
+            _path = path;
             InitializeComponent();
             HtmlString = ReadHtml();
             MonitorTailOfFile();
@@ -70,12 +73,12 @@ namespace GHUI
 
         private string ReadHtml()
         {
-            if (_htmlPath != null)
+            if (_path != null)
             {
-                return File.ReadAllText(_htmlPath);
+                return File.ReadAllText(_path);
             }
 
-            string file = System.IO.Path.Combine(Directory, "Window.html");
+            string file = Path.Combine(Directory, "Window.html");
             return !File.Exists(file) ? "" : File.ReadAllText(file);
         }
 
