@@ -18,38 +18,23 @@ namespace GHUI
     [ComVisible(true)]
     public partial class WebWindow : Window
     {
-        // STUFF
-        private IGH_DataAccess _gh = null;
-
+        private string _htmlPath;
         // GENERIC SETUP
         public event PropertyChangedEventHandler PropertyChanged;
         private static string Path => Assembly.GetExecutingAssembly().Location;
         private static readonly string Directory = System.IO.Path.GetDirectoryName(Path);
 
         // HTML QUERY
-        private HTMLDocument Doc => (HTMLDocument) webBrowser1.Document;
+        private HTMLDocument Doc => (HTMLDocument) WebBrowser.Document;
         private IHTMLInputTextElement Input => Doc.getElementById("fname") as IHTMLInputTextElement;
 
         // HTML READ
-        private string _htmlStringContainer = "";
         private FileSystemWatcher _watcher;
 
         /// HTML STRING
-        private string _htmlString;
-
-        public string HtmlString
-        {
-            get => _htmlString;
-            set
-            {
-                _htmlString = value;
-                OnHtmlChanged();
-            }
-        }
+        public string HtmlString { get; set; }
 
         /// HTML VALUE
-        private string _value;
-
         public string Value
         {
             get
@@ -60,62 +45,44 @@ namespace GHUI
         }
 
 
-        public WebWindow(IGH_DataAccess da)
+        public WebWindow(string path)
         {
-            _gh = da;
+            _htmlPath = path;
             InitializeComponent();
             HtmlString = ReadHtml();
-            webBrowser1.NavigateToString(HtmlString);
-            webBrowser1.LoadCompleted += BrowserLoaded;
+            MonitorTailOfFile();
+            WebBrowser.NavigateToString(HtmlString);
+            WebBrowser.LoadCompleted += BrowserLoaded;
         }
 
         private void BrowserLoaded(object o, EventArgs e)
         {
-            //MonitorTailOfFile();
-            //IHTMLElement el = Input as IHTMLElement; // convert to html element
-            //IHTMLElement2 inputElement = el as IHTMLElement2; // convert to html element 2
-
-            //IHTMLDocument2 test = el.document as IHTMLDocument2;
-            //IHTMLWindow2 test2 = test.parentWindow;
-            //IHTMLWindow2 wnd = (el.document as IHTMLDocument2).parentWindow; // get parent
-            //inputElement.attachEvent("onchange", new HtmlHandler(InputChanged, wnd)); // attach
-
-            mshtml.HTMLDocumentEvents2_Event iEvent = (mshtml.HTMLDocumentEvents2_Event) Doc;
+            // add click handler
+            HTMLDocumentEvents2_Event iEvent = (HTMLDocumentEvents2_Event) Doc;
             iEvent.onclick += ClickEventHandler;
         }
 
-        private bool ClickEventHandler(mshtml.IHTMLEventObj e)
+        private bool ClickEventHandler(IHTMLEventObj e)
         {
-            Debug.WriteLine("HIIII");
+            Debug.WriteLine("CLICKED");
             return true;
-        }
-
-        private void InputChanged(object sender, EventArgs e)
-        {
-            HtmlHandler htmlHandler = (HtmlHandler) sender;
-            IHTMLElement element = htmlHandler.SourceHTMLWindow.@event.srcElement;
-            Debug.WriteLine("HI");
         }
 
         private string ReadHtml()
         {
-            string file = System.IO.Path.Combine(Directory, "Window.html");
-            if (!File.Exists(file)) return _htmlStringContainer;
-            _htmlStringContainer = file;
+            if (_htmlPath != null)
+            {
+                return File.ReadAllText(_htmlPath);
+            }
 
-            return File.ReadAllText(_htmlStringContainer);
+            string file = System.IO.Path.Combine(Directory, "Window.html");
+            return !File.Exists(file) ? "" : File.ReadAllText(file);
         }
 
         protected void OnPropertyChanged([CallerMemberName] string name = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
             //_gh.SetData(0, Value);
-        }
-
-        protected void OnHtmlChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-            //webBrowser1.NavigateToString(HtmlString);
         }
 
         public void MonitorTailOfFile()
@@ -129,11 +96,11 @@ namespace GHUI
                                | NotifyFilters.DirectoryName,
                 Filter = "*.html"
             };
-            _watcher.Changed += OnChanged;
+            _watcher.Changed += OnHtmlChanged;
             _watcher.EnableRaisingEvents = true;
         }
 
-        private void OnChanged(object source, FileSystemEventArgs e)
+        private void OnHtmlChanged(object source, FileSystemEventArgs e)
         {
             // Specify what is done when a file is changed, created, or deleted.
             _watcher.Dispose();
@@ -142,7 +109,7 @@ namespace GHUI
             Dispatcher.Invoke(() =>
             {
                 HtmlString = ReadHtml();
-                webBrowser1.NavigateToString(HtmlString);
+                WebBrowser.NavigateToString(HtmlString);
                 MonitorTailOfFile();
             });
         }

@@ -6,7 +6,7 @@ namespace GHUI
     public class GhuiComponent : GH_Component
     {
         public bool Initialized;
-        public WebWindow Wwindow;
+        public WebWindow WebWindow;
 
         /// <summary>
         /// Each implementation of GH_Component must provide a public 
@@ -27,7 +27,8 @@ namespace GHUI
         /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddBooleanParameter("Refresh", "refresh", "Whether or not to refresh", GH_ParamAccess.item);
+            pManager.AddTextParameter("HTML Path", "path", "Where to look for the HTML interface.",
+                GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -45,50 +46,49 @@ namespace GHUI
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess da)
         {
-            bool refresh = false;
+            string path = null;
 
-            // Use the DA object to retrieve the data inside the input parameters.
-            // If the retrieval fails (for example if there is no data) we need to abort.
-            if (!da.GetData(0, ref refresh))
+            if (!da.GetData(0, ref path))
             {
                 return;
             }
 
             if (Initialized)
             {
-                da.SetData(0, Wwindow.Value);
+                da.SetData(0, WebWindow.Value);
             }
             else
             {
-                Wwindow = new WebWindow(da);
-                Wwindow.Show();
-                da.SetData(0, Wwindow.Value);
+                WebWindow = new WebWindow(path);
+                WebWindow.Show();
                 Initialized = true;
+                da.SetData(0, WebWindow.Value);
             }
+
+            GH_Document doc = OnPingDocument();
+            doc?.ScheduleSolution(500, ScheduleCallback);
+            //this.ExpireSolution(true);
+        }
+
+        private void ScheduleCallback(GH_Document document)
+        {
+            ExpireSolution(false);
         }
 
         /// <summary>
         /// Provides an Icon for every component that will be visible in the User Interface.
         /// Icons need to be 24x24 pixels.
         /// </summary>
-        protected override System.Drawing.Bitmap Icon
-        {
-            get
-            {
-                // You can add image files to your project resources and access them like this:
-                //return Resources.IconForThisComponent;
-                return null;
-            }
-        }
+        protected override System.Drawing.Bitmap Icon =>
+            // You can add image files to your project resources and access them like this:
+            //return Resources.IconForThisComponent;
+            null;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it. 
         /// It is vital this Guid doesn't change otherwise old ghx files 
         /// that use the old ID will partially fail during loading.
         /// </summary>
-        public override Guid ComponentGuid
-        {
-            get { return new Guid("1c7a71f6-4e49-4a7b-a67d-b7691dc381b4"); }
-        }
+        public override Guid ComponentGuid => new Guid("1c7a71f6-4e49-4a7b-a67d-b7691dc381b4");
     }
 }

@@ -16,10 +16,7 @@ namespace GHUI
             this.htmlWindow = sourceWindow;
         }
 
-        public IHTMLWindow2 SourceHTMLWindow
-        {
-            get { return this.htmlWindow; }
-        }
+        public IHTMLWindow2 SourceHTMLWindow => this.htmlWindow;
 
         #region IReflect
 
@@ -89,10 +86,7 @@ namespace GHUI
             return null;
         }
 
-        Type IReflect.UnderlyingSystemType
-        {
-            get { return this.typeIReflectImplementation.UnderlyingSystemType; }
-        }
+        Type IReflect.UnderlyingSystemType => this.typeIReflectImplementation.UnderlyingSystemType;
 
         #endregion
 

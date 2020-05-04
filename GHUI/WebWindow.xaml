@@ -9,7 +9,7 @@
     <Grid Background="White">
         <Grid.ColumnDefinitions>
         </Grid.ColumnDefinitions>
-        <WebBrowser Name="webBrowser1" Margin="10,10,10.333,9.667" />
+        <WebBrowser Name="WebBrowser" Margin="10,10,10.333,9.667" />
         <!--<cefSharp:ChromiumWebBrowser
             x:Name="ChromiumWebBrowser"
             Address="http://www.google.com" Margin="10,98,10,10.333" BorderBrush="Black" Background="#FFA81515" />-->
