@@ -2,18 +2,15 @@
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
-using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
-using Grasshopper.Kernel;
 using mshtml;
 
 namespace GHUI
 {
     /// <summary>
-    /// Interaction logic for UserControl1.xaml
+    /// Interaction logic for the WPF WebBrowser
     /// </summary>
     [ComVisible(true)]
     public partial class WebWindow : Window
@@ -22,12 +19,13 @@ namespace GHUI
         public event PropertyChangedEventHandler PropertyChanged;
         //private static string Path => Assembly.GetExecutingAssembly().Location;
 
-        private string _path;
+        private readonly string _path;
         private string Directory => Path.GetDirectoryName(_path);
 
 
         // HTML QUERY
         private HTMLDocument Doc => (HTMLDocument) WebBrowser.Document;
+        private IHTMLElementCollection DocElements => Doc.getElementsByTagName("HTML");
         private IHTMLInputTextElement Input => Doc.getElementById("fname") as IHTMLInputTextElement;
 
         // HTML READ
@@ -37,14 +35,7 @@ namespace GHUI
         public string HtmlString { get; set; }
 
         /// HTML VALUE
-        public string Value
-        {
-            get
-            {
-                OnPropertyChanged();
-                return Input?.value;
-            }
-        }
+        public string Value => Input?.value;
 
 
         /// <summary>
@@ -69,6 +60,10 @@ namespace GHUI
             // add click handler
             HTMLDocumentEvents2_Event iEvent = (HTMLDocumentEvents2_Event) Doc;
             iEvent.onclick += ClickEventHandler;
+            IHTMLElementCollection body = Doc.getElementsByName("body");
+            IHTMLElementCollection body2 = Doc.getElementsByTagName("body");
+            IHTMLElementCollection inputs = Doc.getElementsByTagName("input");
+            Debug.WriteLine(body.length);
         }
 
         /// <summary>
@@ -79,7 +74,28 @@ namespace GHUI
         /// <returns></returns>
         private bool ClickEventHandler(IHTMLEventObj e)
         {
-            Debug.WriteLine("CLICKED");
+            //HtmlDocument doc = WebBrowser.Document;
+            //HtmlElementCollection temp = doc.GetElementsByTagName("HTML");
+            //foreach (HtmlElement elem in temp)
+            //foreach (var elem in DocElements)
+            //{
+            //    string elemName;
+            //    //var test = elem.GetAttribute("value");
+
+            //    //elemName = elem.GetAttribute("ID");
+            //    //if (elemName != null && elemName.Length != 0) continue;
+            //    //elemName = elem.GetAttribute("name");
+            //    //if (elemName == null || elemName.Length == 0)
+            //    //{
+            //    //    elemName = "<no name>";
+            //    //}
+            //    //if (elem.CanHaveChildren)
+            //    //{
+            //    //    Recursion(elem.Children, returnStr, depth + 1);
+            //    //}
+            //}
+            Debug.WriteLine("CLICK");
+
             return true;
         }
 
@@ -98,11 +114,11 @@ namespace GHUI
             return !File.Exists(file) ? "" : File.ReadAllText(file);
         }
 
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-            //_gh.SetData(0, Value);
-        }
+        //protected void OnPropertyChanged([CallerMemberName] string name = null)
+        //{
+        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        //    //_gh.SetData(0, Value);
+        //}
 
         /// <summary>
         /// Initialize watching for changes of the HTML file so it can be re-rendered.
