@@ -73,6 +73,7 @@
   <ItemGroup>
     <Compile Include="GHUIComponent.cs" />
     <Compile Include="GHUIInfo.cs" />
+    <Compile Include="HtmlHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebWindow.xaml.cs">
       <DependentUpon>WebWindow.xaml</DependentUpon>

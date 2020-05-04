@@ -9,7 +9,6 @@ using System.Threading;
 using System.Windows;
 using Grasshopper.Kernel;
 using mshtml;
-using HTMLInputTextElementEvents_onchangeEventHandler = mshtml.HTMLInputTextElementEvents_onchangeEventHandler;
 
 namespace GHUI
 {
@@ -37,6 +36,7 @@ namespace GHUI
 
         /// HTML STRING
         private string _htmlString;
+
         public string HtmlString
         {
             get => _htmlString;
@@ -46,9 +46,10 @@ namespace GHUI
                 OnHtmlChanged();
             }
         }
-        
+
         /// HTML VALUE
         private string _value;
+
         public string Value
         {
             get
@@ -65,14 +66,34 @@ namespace GHUI
             InitializeComponent();
             HtmlString = ReadHtml();
             webBrowser1.NavigateToString(HtmlString);
-            MonitorTailOfFile();
-            //Input.onchange += new System.EventHandler(InputChanged);
+            webBrowser1.LoadCompleted += BrowserLoaded;
         }
 
-        private void InputChanged(object o, EventArgs e)
+        private void BrowserLoaded(object o, EventArgs e)
         {
-            object o1 = o;
-            EventArgs e1 = e;
+            //MonitorTailOfFile();
+            //IHTMLElement el = Input as IHTMLElement; // convert to html element
+            //IHTMLElement2 inputElement = el as IHTMLElement2; // convert to html element 2
+
+            //IHTMLDocument2 test = el.document as IHTMLDocument2;
+            //IHTMLWindow2 test2 = test.parentWindow;
+            //IHTMLWindow2 wnd = (el.document as IHTMLDocument2).parentWindow; // get parent
+            //inputElement.attachEvent("onchange", new HtmlHandler(InputChanged, wnd)); // attach
+
+            mshtml.HTMLDocumentEvents2_Event iEvent = (mshtml.HTMLDocumentEvents2_Event) Doc;
+            iEvent.onclick += ClickEventHandler;
+        }
+
+        private bool ClickEventHandler(mshtml.IHTMLEventObj e)
+        {
+            Debug.WriteLine("HIIII");
+            return true;
+        }
+
+        private void InputChanged(object sender, EventArgs e)
+        {
+            HtmlHandler htmlHandler = (HtmlHandler) sender;
+            IHTMLElement element = htmlHandler.SourceHTMLWindow.@event.srcElement;
             Debug.WriteLine("HI");
         }
 
