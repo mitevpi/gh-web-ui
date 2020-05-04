@@ -22,7 +22,6 @@ namespace GHUI
         public event PropertyChangedEventHandler PropertyChanged;
         //private static string Path => Assembly.GetExecutingAssembly().Location;
 
-
         private string _path;
         private string Directory => Path.GetDirectoryName(_path);
 
@@ -48,6 +47,10 @@ namespace GHUI
         }
 
 
+        /// <summary>
+        /// The WPF Container for the WebBrowser element which renders the user's HTML.
+        /// </summary>
+        /// <param name="path">Path of the HTML file to render as UI.</param>
         public WebWindow(string path)
         {
             _path = path;
@@ -58,6 +61,9 @@ namespace GHUI
             WebBrowser.LoadCompleted += BrowserLoaded;
         }
 
+        /// <summary>
+        /// Event handler for when the WPF Web Browser is loaded and initialized.
+        /// </summary>
         private void BrowserLoaded(object o, EventArgs e)
         {
             // add click handler
@@ -65,12 +71,22 @@ namespace GHUI
             iEvent.onclick += ClickEventHandler;
         }
 
+        /// <summary>
+        /// Event handler for clicking on the UI. Placeholder for "real" event
+        /// listeners that would update values of input elements on this instance.
+        /// </summary>
+        /// <param name="e"></param>
+        /// <returns></returns>
         private bool ClickEventHandler(IHTMLEventObj e)
         {
             Debug.WriteLine("CLICKED");
             return true;
         }
 
+        /// <summary>
+        /// Read the HTML as raw text.
+        /// </summary>
+        /// <returns>Raw text of the HTML UI</returns>
         private string ReadHtml()
         {
             if (_path != null)
@@ -88,7 +104,10 @@ namespace GHUI
             //_gh.SetData(0, Value);
         }
 
-        public void MonitorTailOfFile()
+        /// <summary>
+        /// Initialize watching for changes of the HTML file so it can be re-rendered.
+        /// </summary>
+        private void MonitorTailOfFile()
         {
             _watcher = new FileSystemWatcher
             {
@@ -103,14 +122,21 @@ namespace GHUI
             _watcher.EnableRaisingEvents = true;
         }
 
+        /// <summary>
+        /// Method handler for when a change is detected in the HTML file.
+        /// </summary>
         private void OnHtmlChanged(object source, FileSystemEventArgs e)
         {
-            // Specify what is done when a file is changed, created, or deleted.
+            // Destroy the watcher
             _watcher.Dispose();
             _watcher = null;
+
+            // Wait 1 sec (hack-y preventing of thread conflicts by accessing the same file at 
+            // the same time (Watcher and File Reader).
             Thread.Sleep(1000);
             Dispatcher.Invoke(() =>
             {
+                // Reread the HTML, render it, and start another FileWatcher
                 HtmlString = ReadHtml();
                 WebBrowser.NavigateToString(HtmlString);
                 MonitorTailOfFile();
