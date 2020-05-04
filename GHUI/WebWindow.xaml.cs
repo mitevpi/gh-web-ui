@@ -5,13 +5,11 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Forms;
 using Grasshopper.Kernel;
 using mshtml;
+using HTMLInputTextElementEvents_onchangeEventHandler = mshtml.HTMLInputTextElementEvents_onchangeEventHandler;
 
 namespace GHUI
 {
@@ -30,15 +28,15 @@ namespace GHUI
         private static readonly string Directory = System.IO.Path.GetDirectoryName(Path);
 
         // HTML QUERY
-        private mshtml.HTMLDocument Doc => (mshtml.HTMLDocument) webBrowser1.Document;
-        private mshtml.HTMLInputTextElement Input => Doc.getElementById("fname") as mshtml.HTMLInputTextElement;
+        private HTMLDocument Doc => (HTMLDocument) webBrowser1.Document;
+        private IHTMLInputTextElement Input => Doc.getElementById("fname") as IHTMLInputTextElement;
 
         // HTML READ
         private string _htmlStringContainer = "";
         private FileSystemWatcher _watcher;
 
+        /// HTML STRING
         private string _htmlString;
-
         public string HtmlString
         {
             get => _htmlString;
@@ -48,7 +46,9 @@ namespace GHUI
                 OnHtmlChanged();
             }
         }
-
+        
+        /// HTML VALUE
+        private string _value;
         public string Value
         {
             get
@@ -58,8 +58,6 @@ namespace GHUI
             }
         }
 
-        //public string Value => Input?.value;
-
 
         public WebWindow(IGH_DataAccess da)
         {
@@ -68,8 +66,14 @@ namespace GHUI
             HtmlString = ReadHtml();
             webBrowser1.NavigateToString(HtmlString);
             MonitorTailOfFile();
-            //HTMLInputTextElementEvents_onchangeEventHandler temp = (HTMLInputTextElementEvents_onchangeEventHandler) Input.onchange;
-            //Input.onchange += inputOnChange();
+            //Input.onchange += new System.EventHandler(InputChanged);
+        }
+
+        private void InputChanged(object o, EventArgs e)
+        {
+            object o1 = o;
+            EventArgs e1 = e;
+            Debug.WriteLine("HI");
         }
 
         private string ReadHtml()
@@ -104,7 +108,7 @@ namespace GHUI
                                | NotifyFilters.DirectoryName,
                 Filter = "*.html"
             };
-            _watcher.Changed += new FileSystemEventHandler(OnChanged);
+            _watcher.Changed += OnChanged;
             _watcher.EnableRaisingEvents = true;
         }
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Windows.Forms;
 using Grasshopper.Kernel;
 
 namespace GHUI
@@ -26,17 +25,17 @@ namespace GHUI
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+        protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddBooleanParameter("Refresh", "R", "Whether or not to refresh", GH_ParamAccess.item);
+            pManager.AddBooleanParameter("Refresh", "refresh", "Whether or not to refresh", GH_ParamAccess.item);
         }
 
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+        protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("Value", "val", "Value of HTML Text Input", GH_ParamAccess.item);
+            pManager.AddTextParameter("Out", "out", "Value of HTML Text Input", GH_ParamAccess.item);
         }
 
         /// <summary>
