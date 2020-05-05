@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading;
+using System.Windows.Threading;
 using Grasshopper.Kernel;
 
 namespace GHUI
@@ -7,6 +9,12 @@ namespace GHUI
     {
         public bool Initialized;
         public WebWindow WebWindow;
+
+        // ModelessForm instance
+        private WebWindow _webWindow;
+
+        // Separate thread to run Ui on
+        private Thread _uiThread;
 
         /// <summary>
         /// Each implementation of GH_Component must provide a public 
@@ -61,8 +69,9 @@ namespace GHUI
             }
             else
             {
-                WebWindow = new WebWindow(path);
-                WebWindow.Show();
+                //WebWindow = new WebWindow(path);
+                //WebWindow.Show();
+                LaunchWindow(path);
                 Initialized = true;
             }
 
@@ -71,24 +80,41 @@ namespace GHUI
             //this.ExpireSolution(true);
         }
 
+        private void LaunchWindow(string path)
+        {
+            if (!(_uiThread is null) && _uiThread.IsAlive) return;
+            _uiThread = new Thread(() =>
+            {
+                SynchronizationContext.SetSynchronizationContext(
+                    new DispatcherSynchronizationContext(
+                        Dispatcher.CurrentDispatcher));
+                // The dialog becomes the owner responsible for disposing the objects given to it.
+                _webWindow = WebWindow = new WebWindow(path);
+                _webWindow.Closed += (s, e) => Dispatcher.CurrentDispatcher.InvokeShutdown();
+                _webWindow.Show();
+                Dispatcher.Run();
+            });
+
+            _uiThread.SetApartmentState(ApartmentState.STA);
+            _uiThread.IsBackground = true;
+            _uiThread.Start();
+        }
+
         private void ScheduleCallback(GH_Document document)
         {
             ExpireSolution(false);
         }
 
         /// <summary>
-        /// Provides an Icon for every component that will be visible in the User Interface.
-        /// Icons need to be 24x24 pixels.
+        /// Icon
         /// </summary>
-        protected override System.Drawing.Bitmap Icon =>
-            // You can add image files to your project resources and access them like this:
-            //return Resources.IconForThisComponent;
-            Properties.Resources.web_window;
+        protected override System.Drawing.Bitmap Icon => Properties.Resources.web_window;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it. 
         /// It is vital this Guid doesn't change otherwise old ghx files 
         /// that use the old ID will partially fail during loading.
+        /// guid
         /// </summary>
         public override Guid ComponentGuid => new Guid("1c7a71f6-4e49-4a7b-a67d-b7691dc381b4");
     }

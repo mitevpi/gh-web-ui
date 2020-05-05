@@ -22,13 +22,13 @@ namespace GHUI
         //private static string Path => Assembly.GetExecutingAssembly().Location;
 
         private readonly string _path;
-        private string Directory => Path.GetDirectoryName(_path);
+        private string Directory => Dispatcher.Invoke(() => Path.GetDirectoryName(_path));
 
 
         // HTML QUERY
-        private HTMLDocument Doc => (HTMLDocument) WebBrowser.Document;
-        private IHTMLElementCollection DocElements => Doc.getElementsByTagName("HTML");
-        private IHTMLElementCollection DocInputElements => Doc.getElementsByTagName("input");
+        private HTMLDocument Doc => Dispatcher.Invoke(() => (HTMLDocument) WebBrowser.Document);
+        private IHTMLElementCollection DocElements => Dispatcher.Invoke(() => Doc.getElementsByTagName("HTML"));
+        private IHTMLElementCollection DocInputElements => Dispatcher.Invoke(() => Doc.getElementsByTagName("input"));
 
         // HTML READ
         private FileSystemWatcher _watcher;
@@ -38,12 +38,12 @@ namespace GHUI
         /// <summary>
         /// List of the current values of all the input elements in the DOM.
         /// </summary>
-        public List<string> InputValues => GetInputValues();
+        public List<string> InputValues => Dispatcher.Invoke(GetInputValues);
 
         /// <summary>
         /// List of the id properties of all the input elements in the DOM.
         /// </summary>
-        public List<string> InputIds => GetInputIds();
+        public List<string> InputIds => Dispatcher.Invoke(GetInputIds);
 
 
         /// <summary>

@@ -14,13 +14,17 @@
             padding: 0;
         }
 
-        .chart-container {
-            width: 1000px;
-            height: 300px;
+        ul {
+            list-style-type: none;
             padding: 0;
-            margin: auto;
-            display: block;
         }
+
+        li {
+            display: inline-block;
+            margin: 0 10px;
+        }
+
+        a { color: #42b983; }
 
         #app {
             font-family: "Avenir", Helvetica, Arial, sans-serif;
@@ -42,7 +46,7 @@
         <li>
             To learn more about Vue, visit
             <a :href="docsURL" target="_blank">
-                \{{ humanizeURL(docsURL) }}
+                {{ humanizeURL(docsURL) }}
             </a>
         </li>
         <li>
