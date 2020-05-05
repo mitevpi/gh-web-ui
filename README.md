@@ -13,7 +13,7 @@ Prototype for building a Grasshopper interface using native web components.
 
 #### Grasshopper & HTML
 
-[Grasshopper File](grasshopper/ghtest.gh) for testing.
+After building the `.gha` from source, open the [Grasshopper File](grasshopper/ghtest.gh) for testing.
 
 |                                      Links                                      |                               Sample                                |
 | :-----------------------------------------------------------------------------: | :-----------------------------------------------------------------: |
