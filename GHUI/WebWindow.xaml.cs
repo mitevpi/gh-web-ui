@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
@@ -26,16 +28,22 @@ namespace GHUI
         // HTML QUERY
         private HTMLDocument Doc => (HTMLDocument) WebBrowser.Document;
         private IHTMLElementCollection DocElements => Doc.getElementsByTagName("HTML");
-        private IHTMLInputTextElement Input => Doc.getElementById("fname") as IHTMLInputTextElement;
+        private IHTMLElementCollection DocInputElements => Doc.getElementsByTagName("input");
 
         // HTML READ
         private FileSystemWatcher _watcher;
-
-        /// HTML STRING
-        public string HtmlString { get; set; }
+        private string HtmlString { get; set; }
 
         /// HTML VALUE
-        public string Value => Input?.value;
+        /// <summary>
+        /// List of the current values of all the input elements in the DOM.
+        /// </summary>
+        public List<string> InputValues => GetInputValues();
+
+        /// <summary>
+        /// List of the id properties of all the input elements in the DOM.
+        /// </summary>
+        public List<string> InputIds => GetInputIds();
 
 
         /// <summary>
@@ -52,6 +60,18 @@ namespace GHUI
             WebBrowser.LoadCompleted += BrowserLoaded;
         }
 
+        private List<string> GetInputValues()
+        {
+            return (from HTMLInputElement vElement in DocInputElements
+                select vElement.value).ToList();
+        }
+
+        private List<string> GetInputIds()
+        {
+            return (from HTMLInputElement vElement in DocInputElements
+                select vElement.id).ToList();
+        }
+
         /// <summary>
         /// Event handler for when the WPF Web Browser is loaded and initialized.
         /// </summary>
@@ -60,10 +80,6 @@ namespace GHUI
             // add click handler
             HTMLDocumentEvents2_Event iEvent = (HTMLDocumentEvents2_Event) Doc;
             iEvent.onclick += ClickEventHandler;
-            IHTMLElementCollection body = Doc.getElementsByName("body");
-            IHTMLElementCollection body2 = Doc.getElementsByTagName("body");
-            IHTMLElementCollection inputs = Doc.getElementsByTagName("input");
-            Debug.WriteLine(body.length);
         }
 
         /// <summary>
@@ -74,26 +90,6 @@ namespace GHUI
         /// <returns></returns>
         private bool ClickEventHandler(IHTMLEventObj e)
         {
-            //HtmlDocument doc = WebBrowser.Document;
-            //HtmlElementCollection temp = doc.GetElementsByTagName("HTML");
-            //foreach (HtmlElement elem in temp)
-            //foreach (var elem in DocElements)
-            //{
-            //    string elemName;
-            //    //var test = elem.GetAttribute("value");
-
-            //    //elemName = elem.GetAttribute("ID");
-            //    //if (elemName != null && elemName.Length != 0) continue;
-            //    //elemName = elem.GetAttribute("name");
-            //    //if (elemName == null || elemName.Length == 0)
-            //    //{
-            //    //    elemName = "<no name>";
-            //    //}
-            //    //if (elem.CanHaveChildren)
-            //    //{
-            //    //    Recursion(elem.Children, returnStr, depth + 1);
-            //    //}
-            //}
             Debug.WriteLine("CLICK");
 
             return true;
@@ -149,7 +145,7 @@ namespace GHUI
 
             // Wait 1 sec (hack-y preventing of thread conflicts by accessing the same file at 
             // the same time (Watcher and File Reader).
-            Thread.Sleep(1000);
+            Thread.Sleep(500);
             Dispatcher.Invoke(() =>
             {
                 // Reread the HTML, render it, and start another FileWatcher

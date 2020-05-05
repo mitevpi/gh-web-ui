@@ -36,7 +36,8 @@ namespace GHUI
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("Out", "out", "Value of HTML Text Input", GH_ParamAccess.item);
+            pManager.AddTextParameter("Input Values", "vals", "Value of HTML Inputs", GH_ParamAccess.list);
+            pManager.AddTextParameter("Input Ids", "ids", "Ids of HTML Inputs", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -55,14 +56,14 @@ namespace GHUI
 
             if (Initialized)
             {
-                da.SetData(0, WebWindow.Value);
+                da.SetDataList(0, WebWindow.InputValues);
+                da.SetDataList(1, WebWindow.InputIds);
             }
             else
             {
                 WebWindow = new WebWindow(path);
                 WebWindow.Show();
                 Initialized = true;
-                da.SetData(0, WebWindow.Value);
             }
 
             GH_Document doc = OnPingDocument();
@@ -82,7 +83,7 @@ namespace GHUI
         protected override System.Drawing.Bitmap Icon =>
             // You can add image files to your project resources and access them like this:
             //return Resources.IconForThisComponent;
-            null;
+            Properties.Resources.web_window;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it. 
