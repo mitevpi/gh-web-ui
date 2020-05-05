@@ -60,10 +60,26 @@ namespace GHUI
             WebBrowser.LoadCompleted += BrowserLoaded;
         }
 
+        private string ParseValue(HTMLInputElement vElement)
+        {
+            string type = vElement.type;
+            switch (type)
+            {
+                case "range":
+                    return vElement.value;
+                case "radio":
+                    return vElement.@checked.ToString();
+                case "checkbox":
+                    return vElement.@checked.ToString();
+                default:
+                    return vElement.value;
+            }
+        }
+
         private List<string> GetInputValues()
         {
             return (from HTMLInputElement vElement in DocInputElements
-                select vElement.value).ToList();
+                select ParseValue(vElement)).ToList();
         }
 
         private List<string> GetInputIds()
