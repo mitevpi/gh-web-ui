@@ -73,7 +73,6 @@
   <ItemGroup>
     <Compile Include="GHUIComponent.cs" />
     <Compile Include="GHUIInfo.cs" />
-    <Compile Include="HtmlHandler.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -116,6 +115,8 @@
     <Resource Include="Resources\web-window.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Resource>
+    <Content Include="Web UI\InputBasic.html" />
+    <Content Include="Web UI\InputVue.html" />
     <Content Include="Window.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -126,6 +127,7 @@
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
@@ -135,11 +137,9 @@
   </Target>
   -->
   <PropertyGroup>
-    <PostBuildEvent>
-      Copy "$(TargetPath)" "$(TargetDir)$(ProjectName).gha"
-      copy "$(TargetDir)$(ProjectName).gha" "$(AppData)\Grasshopper\libraries"
-      copy "$(TargetDir)" "$(AppData)\Grasshopper\libraries"
-    </PostBuildEvent>
+    <PostBuildEvent>Copy "$(TargetPath)" "$(TargetDir)$(ProjectName).gha"
+ copy "$(TargetDir)$(ProjectName).gha" "$(AppData)\Grasshopper\libraries"
+</PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>
     <FallbackCulture>en-US</FallbackCulture>
