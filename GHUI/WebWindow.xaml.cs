@@ -24,7 +24,6 @@ namespace GHUI
         private readonly string _path;
         private string Directory => Dispatcher.Invoke(() => Path.GetDirectoryName(_path));
 
-
         // HTML QUERY
         private HTMLDocument Doc => Dispatcher.Invoke(() => (HTMLDocument) WebBrowser.Document);
         private IHTMLElementCollection DocElements => Dispatcher.Invoke(() => Doc.getElementsByTagName("HTML"));
@@ -55,11 +54,16 @@ namespace GHUI
             _path = path;
             InitializeComponent();
             HtmlString = ReadHtml();
-            MonitorTailOfFile();
+            ListenHtmlChange();
             WebBrowser.NavigateToString(HtmlString);
             WebBrowser.LoadCompleted += BrowserLoaded;
         }
 
+        /// <summary>
+        /// Return a useful value from the HTML (Input) Element based on what type of element it is.
+        /// </summary>
+        /// <param name="vElement">HTML Input Element from the DOM.</param>
+        /// <returns>The value of the HTML Input Element.</returns>
         private string ParseValue(HTMLInputElement vElement)
         {
             string type = vElement.type;
@@ -76,12 +80,20 @@ namespace GHUI
             }
         }
 
+        /// <summary>
+        /// Get the values of all the input elements in the DOM.
+        /// </summary>
+        /// <returns>List of values.</returns>
         private List<string> GetInputValues()
         {
             return (from HTMLInputElement vElement in DocInputElements
                 select ParseValue(vElement)).ToList();
         }
 
+        /// <summary>
+        /// Get the ids of all the input elements in the DOM.
+        /// </summary>
+        /// <returns>List of ids.</returns>
         private List<string> GetInputIds()
         {
             return (from HTMLInputElement vElement in DocInputElements
@@ -135,7 +147,7 @@ namespace GHUI
         /// <summary>
         /// Initialize watching for changes of the HTML file so it can be re-rendered.
         /// </summary>
-        private void MonitorTailOfFile()
+        private void ListenHtmlChange()
         {
             _watcher = new FileSystemWatcher
             {
@@ -167,7 +179,7 @@ namespace GHUI
                 // Reread the HTML, render it, and start another FileWatcher
                 HtmlString = ReadHtml();
                 WebBrowser.NavigateToString(HtmlString);
-                MonitorTailOfFile();
+                ListenHtmlChange();
             });
         }
     }

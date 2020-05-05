@@ -117,9 +117,6 @@
     </Resource>
     <Content Include="Web UI\InputBasic.html" />
     <Content Include="Web UI\InputVue.html" />
-    <Content Include="Window.html">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
