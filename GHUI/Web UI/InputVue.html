@@ -14,36 +14,42 @@
             padding: 0;
         }
 
-        .chart-container {
-            width: 1000px;
-            height: 300px;
+        ul {
+            list-style-type: none;
             padding: 0;
-            margin: auto;
-            display: block;
         }
 
+        li {
+            display: inline-block;
+            margin: 0 10px;
+        }
+
+        a { color: #42b983; }
+
         #app {
-            font-family: "Open Sans", Helvetica, Arial, sans-serif;
+            font-family: "Avenir", Helvetica, Arial, sans-serif;
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            text-align: center;
+            color: #2c3e50;
         }
     </style>
 
 </head>
 <body>
-<p>
-    Input
-</p>
-<input type="text" id="fname" name="fname">
 <br>
 <div id="app">
-    <img src="https://vuejs.org/images/logo.png" alt="Vue logo">
+    <input type="text" id="fname" name="fname">
+    <br>
+    <input type="range" id="slide" name="slide">
+    <br>
+    <img width="200" src="https://vuejs.org/images/logo.png" alt="Vue logo">
     <h1>{{ greeting }}</h1>
     <ul>
         <li>
             To learn more about Vue, visit
             <a :href="docsURL" target="_blank">
-                \{{ humanizeURL(docsURL) }}
+                {{ humanizeURL(docsURL) }}
             </a>
         </li>
         <li>
@@ -73,7 +79,7 @@
             humanizeURL: function(url) {
                 return url
                     .replace(/^https?:\/\//, '')
-                    .replace(/\/$/, '')
+                    .replace(/\/$/, '');
             }
         }
     })
