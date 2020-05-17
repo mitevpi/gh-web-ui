@@ -4,9 +4,13 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
+using System.Windows.Controls;
+using CefSharp;
+using CefSharp.Wpf;
 using mshtml;
 
 namespace GHUI
@@ -25,24 +29,24 @@ namespace GHUI
         private string Directory => Dispatcher.Invoke(() => Path.GetDirectoryName(_path));
 
         // HTML QUERY
-        private HTMLDocument Doc => Dispatcher.Invoke(() => (HTMLDocument) WebBrowser.Document);
-        private IHTMLElementCollection DocElements => Dispatcher.Invoke(() => Doc.getElementsByTagName("HTML"));
-        private IHTMLElementCollection DocInputElements => Dispatcher.Invoke(() => Doc.getElementsByTagName("input"));
+        //private HTMLDocument Doc => Dispatcher.Invoke(() => (HTMLDocument) WebBrowser.Document);
+        //private IHTMLElementCollection DocElements => Dispatcher.Invoke(() => Doc.getElementsByTagName("HTML"));
+        //private IHTMLElementCollection DocInputElements => Dispatcher.Invoke(() => Doc.getElementsByTagName("input"));
 
         // HTML READ
         private FileSystemWatcher _watcher;
         private string HtmlString { get; set; }
 
-        /// HTML VALUE
-        /// <summary>
-        /// List of the current values of all the input elements in the DOM.
-        /// </summary>
-        public List<string> InputValues => Dispatcher.Invoke(GetInputValues);
+        ///// HTML VALUE
+        ///// <summary>
+        ///// List of the current values of all the input elements in the DOM.
+        ///// </summary>
+        //public List<string> InputValues => Dispatcher.Invoke(GetInputValues);
 
-        /// <summary>
-        /// List of the id properties of all the input elements in the DOM.
-        /// </summary>
-        public List<string> InputIds => Dispatcher.Invoke(GetInputIds);
+        ///// <summary>
+        ///// List of the id properties of all the input elements in the DOM.
+        ///// </summary>
+        //public List<string> InputIds => Dispatcher.Invoke(GetInputIds);
 
 
         /// <summary>
@@ -52,11 +56,32 @@ namespace GHUI
         public WebWindow(string path)
         {
             _path = path;
+            InitializeCef();
             InitializeComponent();
-            HtmlString = ReadHtml();
-            ListenHtmlChange();
-            WebBrowser.NavigateToString(HtmlString);
-            WebBrowser.LoadCompleted += BrowserLoaded;
+            //HtmlString = ReadHtml();
+            //ListenHtmlChange();
+            //WebBrowser.NavigateToString(HtmlString);
+            //WebBrowser.LoadCompleted += BrowserLoaded;
+        }
+
+        private void InitializeCef()
+        {
+            Cef.EnableHighDPISupport();
+
+            string assemblyLocation = Assembly.GetExecutingAssembly().Location;
+            string assemblyPath = Path.GetDirectoryName(assemblyLocation);
+            string pathSubprocess = Path.Combine(assemblyPath, "CefSharp.BrowserSubprocess.exe");
+            CefSharpSettings.LegacyJavascriptBindingEnabled = true;
+            CefSettings settings = new CefSettings
+            {
+                LogSeverity = LogSeverity.Verbose,
+                LogFile = "ceflog.txt",
+                BrowserSubprocessPath = pathSubprocess,
+            };
+
+            settings.CefCommandLineArgs.Add("allow-file-access-from-files", "1");
+            settings.CefCommandLineArgs.Add("disable-web-security", "1");
+            Cef.Initialize(settings);
         }
 
         /// <summary>
@@ -80,35 +105,35 @@ namespace GHUI
             }
         }
 
-        /// <summary>
-        /// Get the values of all the input elements in the DOM.
-        /// </summary>
-        /// <returns>List of values.</returns>
-        private List<string> GetInputValues()
-        {
-            return (from HTMLInputElement vElement in DocInputElements
-                select ParseValue(vElement)).ToList();
-        }
+        ///// <summary>
+        ///// Get the values of all the input elements in the DOM.
+        ///// </summary>
+        ///// <returns>List of values.</returns>
+        //private List<string> GetInputValues()
+        //{
+        //    return (from HTMLInputElement vElement in DocInputElements
+        //        select ParseValue(vElement)).ToList();
+        //}
 
-        /// <summary>
-        /// Get the ids of all the input elements in the DOM.
-        /// </summary>
-        /// <returns>List of ids.</returns>
-        private List<string> GetInputIds()
-        {
-            return (from HTMLInputElement vElement in DocInputElements
-                select vElement.id).ToList();
-        }
+        ///// <summary>
+        ///// Get the ids of all the input elements in the DOM.
+        ///// </summary>
+        ///// <returns>List of ids.</returns>
+        //private List<string> GetInputIds()
+        //{
+        //    return (from HTMLInputElement vElement in DocInputElements
+        //        select vElement.id).ToList();
+        //}
 
-        /// <summary>
-        /// Event handler for when the WPF Web Browser is loaded and initialized.
-        /// </summary>
-        private void BrowserLoaded(object o, EventArgs e)
-        {
-            // add click handler
-            HTMLDocumentEvents2_Event iEvent = (HTMLDocumentEvents2_Event) Doc;
-            iEvent.onclick += ClickEventHandler;
-        }
+        ///// <summary>
+        ///// Event handler for when the WPF Web Browser is loaded and initialized.
+        ///// </summary>
+        //private void BrowserLoaded(object o, EventArgs e)
+        //{
+        //    // add click handler
+        //    HTMLDocumentEvents2_Event iEvent = (HTMLDocumentEvents2_Event) Doc;
+        //    iEvent.onclick += ClickEventHandler;
+        //}
 
         /// <summary>
         /// Event handler for clicking on the UI. Placeholder for "real" event
@@ -138,49 +163,43 @@ namespace GHUI
             return !File.Exists(file) ? "" : File.ReadAllText(file);
         }
 
-        //protected void OnPropertyChanged([CallerMemberName] string name = null)
+        ///// <summary>
+        ///// Initialize watching for changes of the HTML file so it can be re-rendered.
+        ///// </summary>
+        //private void ListenHtmlChange()
         //{
-        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        //    //_gh.SetData(0, Value);
+        //    _watcher = new FileSystemWatcher
+        //    {
+        //        Path = Directory,
+        //        NotifyFilter = NotifyFilters.LastAccess
+        //                       | NotifyFilters.LastWrite
+        //                       | NotifyFilters.FileName
+        //                       | NotifyFilters.DirectoryName,
+        //        Filter = "*.html"
+        //    };
+        //    _watcher.Changed += OnHtmlChanged;
+        //    _watcher.EnableRaisingEvents = true;
         //}
 
-        /// <summary>
-        /// Initialize watching for changes of the HTML file so it can be re-rendered.
-        /// </summary>
-        private void ListenHtmlChange()
-        {
-            _watcher = new FileSystemWatcher
-            {
-                Path = Directory,
-                NotifyFilter = NotifyFilters.LastAccess
-                               | NotifyFilters.LastWrite
-                               | NotifyFilters.FileName
-                               | NotifyFilters.DirectoryName,
-                Filter = "*.html"
-            };
-            _watcher.Changed += OnHtmlChanged;
-            _watcher.EnableRaisingEvents = true;
-        }
+        ///// <summary>
+        ///// Method handler for when a change is detected in the HTML file.
+        ///// </summary>
+        //private void OnHtmlChanged(object source, FileSystemEventArgs e)
+        //{
+        //    // Destroy the watcher
+        //    _watcher.Dispose();
+        //    _watcher = null;
 
-        /// <summary>
-        /// Method handler for when a change is detected in the HTML file.
-        /// </summary>
-        private void OnHtmlChanged(object source, FileSystemEventArgs e)
-        {
-            // Destroy the watcher
-            _watcher.Dispose();
-            _watcher = null;
-
-            // Wait a fraction of a sec (hack-y preventing of thread conflicts by accessing the
-            // same file at the same time (Watcher and File Reader).
-            Thread.Sleep(500);
-            Dispatcher.Invoke(() =>
-            {
-                // Reread the HTML, render it, and start another FileWatcher
-                HtmlString = ReadHtml();
-                WebBrowser.NavigateToString(HtmlString);
-                ListenHtmlChange();
-            });
-        }
+        //    // Wait a fraction of a sec (hack-y preventing of thread conflicts by accessing the
+        //    // same file at the same time (Watcher and File Reader).
+        //    Thread.Sleep(500);
+        //    Dispatcher.Invoke(() =>
+        //    {
+        //        // Reread the HTML, render it, and start another FileWatcher
+        //        HtmlString = ReadHtml();
+        //        WebBrowser.NavigateToString(HtmlString);
+        //        ListenHtmlChange();
+        //    });
+        //}
     }
 }

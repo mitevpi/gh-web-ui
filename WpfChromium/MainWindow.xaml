@@ -10,7 +10,7 @@
     <Grid>
         <cefSharp:ChromiumWebBrowser
             x:Name="ChromiumWebBrowser"
-            Address="http://www.google.com" Margin="10,51,10,10.333" BorderBrush="Black" Background="#FFA81515" />
+            Address="http://www.google.com" Margin="10,10,10,10.333" BorderBrush="Black" Background="#FFA81515" />
 
     </Grid>
 </Window>
