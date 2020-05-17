@@ -171,8 +171,8 @@ namespace GHUI
             _watcher.Dispose();
             _watcher = null;
 
-            // Wait 1 sec (hack-y preventing of thread conflicts by accessing the same file at 
-            // the same time (Watcher and File Reader).
+            // Wait a fraction of a sec (hack-y preventing of thread conflicts by accessing the
+            // same file at the same time (Watcher and File Reader).
             Thread.Sleep(500);
             Dispatcher.Invoke(() =>
             {
