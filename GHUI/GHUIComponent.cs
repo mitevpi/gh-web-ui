@@ -82,6 +82,12 @@ namespace GHUI
 
         private void LaunchWindow(string path)
         {
+            // SINGLE-THREAD FORM SHOW
+            //_webWindow = WebWindow = new WebWindow(path);
+            //_webWindow.Closed += (s, e) => Dispatcher.CurrentDispatcher.InvokeShutdown();
+            //_webWindow.Show();
+
+            // MULTI-THREAD FORM SHOW
             if (!(_uiThread is null) && _uiThread.IsAlive) return;
             _uiThread = new Thread(() =>
             {

@@ -70,10 +70,19 @@ namespace GHUI
             string dir = AppDomain.CurrentDomain.BaseDirectory;
             List<string> missingDeps = CefSharp.DependencyChecker.CheckDependencies(true, false, dir, string.Empty,
                 Path.Combine(dir, "CefSharp.BrowserSubprocess.exe"));
+
+            Debug.WriteLine($"Missing Dependencies {missingDeps.Count}");
             if (missingDeps?.Count > 0)
                 throw new InvalidOperationException("Missing components:\r\n  " + string.Join("\r\n  ", missingDeps));
             // ReSharper disable once UnusedVariable
-            //ChromiumWebBrowser browser = new ChromiumWebBrowser(); //test, if browser can be instantiated
+            try
+            {
+                ChromiumWebBrowser browser = new ChromiumWebBrowser(); //test, if browser can be instantiated
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
         }
 
 
