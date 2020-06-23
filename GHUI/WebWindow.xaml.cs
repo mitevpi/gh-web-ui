@@ -75,14 +75,14 @@ namespace GHUI
             if (missingDeps?.Count > 0)
                 throw new InvalidOperationException("Missing components:\r\n  " + string.Join("\r\n  ", missingDeps));
             // ReSharper disable once UnusedVariable
-            try
-            {
-                ChromiumWebBrowser browser = new ChromiumWebBrowser(); //test, if browser can be instantiated
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
+            //try
+            //{
+            //    ChromiumWebBrowser browser = new ChromiumWebBrowser(); //test, if browser can be instantiated
+            //}
+            //catch (Exception ex)
+            //{
+            //    Debug.WriteLine(ex.Message);
+            //}
         }
 
 
@@ -90,9 +90,11 @@ namespace GHUI
         {
             Cef.EnableHighDPISupport();
 
-            string assemblyLocation = Assembly.GetExecutingAssembly().Location;
-            string assemblyPath = Path.GetDirectoryName(assemblyLocation);
-            string pathSubprocess = Path.Combine(assemblyPath, "CefSharp.BrowserSubprocess.exe");
+            //string assemblyLocation = Assembly.GetExecutingAssembly().Location;
+            //string assemblyPath = Path.GetDirectoryName(assemblyLocation);
+
+            string dir = AppDomain.CurrentDomain.BaseDirectory;
+            string pathSubprocess = Path.Combine(dir, "CefSharp.BrowserSubprocess.exe");
             CefSharpSettings.LegacyJavascriptBindingEnabled = true;
             CefSettings settings = new CefSettings
             {
