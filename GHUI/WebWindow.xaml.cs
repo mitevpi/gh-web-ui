@@ -56,6 +56,7 @@ namespace GHUI
         public WebWindow(string path)
         {
             _path = path;
+            CheckCefDependencies();
             InitializeCef();
             InitializeComponent();
             //HtmlString = ReadHtml();
@@ -63,6 +64,18 @@ namespace GHUI
             //WebBrowser.NavigateToString(HtmlString);
             //WebBrowser.LoadCompleted += BrowserLoaded;
         }
+
+        private void CheckCefDependencies()
+        {
+            string dir = AppDomain.CurrentDomain.BaseDirectory;
+            List<string> missingDeps = CefSharp.DependencyChecker.CheckDependencies(true, false, dir, string.Empty,
+                Path.Combine(dir, "CefSharp.BrowserSubprocess.exe"));
+            if (missingDeps?.Count > 0)
+                throw new InvalidOperationException("Missing components:\r\n  " + string.Join("\r\n  ", missingDeps));
+            // ReSharper disable once UnusedVariable
+            //ChromiumWebBrowser browser = new ChromiumWebBrowser(); //test, if browser can be instantiated
+        }
+
 
         private void InitializeCef()
         {
