@@ -64,8 +64,8 @@ namespace GHUI
 
             if (Initialized)
             {
-                //da.SetDataList(0, WebWindow.InputValues);
-                //da.SetDataList(1, WebWindow.InputIds);
+                da.SetDataList(0, WebWindow.InputValues);
+                da.SetDataList(1, WebWindow.InputIds);
             }
             else
             {
@@ -82,22 +82,25 @@ namespace GHUI
 
         private void LaunchWindow(string path)
         {
-            if (!(_uiThread is null) && _uiThread.IsAlive) return;
-            _uiThread = new Thread(() =>
-            {
-                SynchronizationContext.SetSynchronizationContext(
-                    new DispatcherSynchronizationContext(
-                        Dispatcher.CurrentDispatcher));
-                // The dialog becomes the owner responsible for disposing the objects given to it.
-                _webWindow = WebWindow = new WebWindow(path);
-                _webWindow.Closed += (s, e) => Dispatcher.CurrentDispatcher.InvokeShutdown();
-                _webWindow.Show();
-                Dispatcher.Run();
-            });
+            _webWindow = WebWindow = new WebWindow(path);
+            _webWindow.Closed += (s, e) => Dispatcher.CurrentDispatcher.InvokeShutdown();
+            _webWindow.Show();
+            //if (!(_uiThread is null) && _uiThread.IsAlive) return;
+            //_uiThread = new Thread(() =>
+            //{
+            //    SynchronizationContext.SetSynchronizationContext(
+            //        new DispatcherSynchronizationContext(
+            //            Dispatcher.CurrentDispatcher));
+            //    // The dialog becomes the owner responsible for disposing the objects given to it.
+            //    _webWindow = WebWindow = new WebWindow(path);
+            //    _webWindow.Closed += (s, e) => Dispatcher.CurrentDispatcher.InvokeShutdown();
+            //    _webWindow.Show();
+            //    Dispatcher.Run();
+            //});
 
-            _uiThread.SetApartmentState(ApartmentState.STA);
-            _uiThread.IsBackground = true;
-            _uiThread.Start();
+            //_uiThread.SetApartmentState(ApartmentState.STA);
+            //_uiThread.IsBackground = true;
+            //_uiThread.Start();
         }
 
         private void ScheduleCallback(GH_Document document)

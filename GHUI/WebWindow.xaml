@@ -25,10 +25,28 @@
         Title="WebWindow"
         Height="750"
         Width="500">
+    <Window.Resources>
+        <!--
+        These CreationProperties use the Evergreen Edge executable that's installed on the machine.
+        -->
+        <wv2:CoreWebView2CreationProperties x:Key="EvergreenWebView2CreationProperties" />
+        <!--
+        If you want to use fixed version:
+        1) Navigate to https://developer.microsoft.com/en-us/microsoft-edge/webview2/
+        2) Choose "Fixed Version", select appropriate version and architecture and click download
+        3) Unzip the CAB file to a folder
+        4) Point that folder by `BrowserExecutableFolder` property
+        -->
+        <wv2:CoreWebView2CreationProperties x:Key="BYOWebView2CreationProperties" BrowserExecutableFolder="Replace this with BYO folder" />
+    </Window.Resources>
     <DockPanel>
         <!--<wv2:WebView2 Name="WebBrowser"
                       Source="https://www.microsoft.com" />-->
-        <wv2:WebView2 Name="WebBrowser" Source="https://www.microsoft.com" Margin="10,10,10.333,9.667" />
+        <wv2:WebView2
+            x:Name="webView"
+            Source="https://www.bing.com/"
+            CreationProperties="{StaticResource EvergreenWebView2CreationProperties}"
+        />
     </DockPanel>
 
 
