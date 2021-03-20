@@ -22,12 +22,13 @@
         xmlns:local="clr-namespace:GHUI"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
-        Title="MainWindow"
-        Height="450"
-        Width="800">
+        Title="WebWindow"
+        Height="750"
+        Width="500">
     <DockPanel>
-        <wv2:WebView2 Name="WebBrowser"
-                      Source="https://www.microsoft.com" />
+        <!--<wv2:WebView2 Name="WebBrowser"
+                      Source="https://www.microsoft.com" />-->
+        <wv2:WebView2 Name="WebBrowser" Source="https://www.microsoft.com" Margin="10,10,10.333,9.667" />
     </DockPanel>
 
 

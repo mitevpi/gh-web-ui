@@ -133,7 +133,10 @@
   -->
   <PropertyGroup>
     <PostBuildEvent>Copy "$(TargetPath)" "$(TargetDir)$(ProjectName).gha"
- copy "$(TargetDir)$(ProjectName).gha" "$(AppData)\Grasshopper\libraries"
+ 
+copy "$(TargetDir)$(ProjectName).gha" "$(AppData)\Grasshopper\libraries"
+
+copy "$(TargetDir)" "$(AppData)\Grasshopper\libraries"
 </PostBuildEvent>
   </PropertyGroup>
   <PropertyGroup>

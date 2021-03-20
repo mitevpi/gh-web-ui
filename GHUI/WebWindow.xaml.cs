@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows;
@@ -24,17 +25,17 @@ namespace GHUI
         public event PropertyChangedEventHandler PropertyChanged;
         //private static string Path => Assembly.GetExecutingAssembly().Location;
 
-        //private readonly string _path;
-        //private string Directory => Dispatcher.Invoke(() => Path.GetDirectoryName(_path));
+        private readonly string _path;
+        private string Directory => Dispatcher.Invoke(() => Path.GetDirectoryName(_path));
 
         //// HTML QUERY
         //private HTMLDocument Doc => Dispatcher.Invoke(() => (HTMLDocument) WebBrowser.Document);
         //private IHTMLElementCollection DocElements => Dispatcher.Invoke(() => Doc.getElementsByTagName("HTML"));
         //private IHTMLElementCollection DocInputElements => Dispatcher.Invoke(() => Doc.getElementsByTagName("input"));
 
-        //// HTML READ
-        //private FileSystemWatcher _watcher;
-        //private string HtmlString { get; set; }
+        // HTML READ
+        private FileSystemWatcher _watcher;
+        private string HtmlString { get; set; }
 
         ///// HTML VALUE
         ///// <summary>
@@ -54,10 +55,12 @@ namespace GHUI
         /// <param name="path">Path of the HTML file to render as UI.</param>
         public WebWindow(string path)
         {
-            //_path = path;
+            _path = path;
             InitializeComponent();
-            //HtmlString = ReadHtml();
+            HtmlString = ReadHtml();
             //ListenHtmlChange();
+            //WebBrowser.Source = "https://www.microsoft.com";
+            //WebBrowser.Source = new Uri(_path);
             //WebBrowser.NavigateToString(HtmlString);
             //WebBrowser.LoadCompleted += BrowserLoaded;
         }
@@ -126,20 +129,20 @@ namespace GHUI
         //    return true;
         //}
 
-        ///// <summary>
-        ///// Read the HTML as raw text.
-        ///// </summary>
-        ///// <returns>Raw text of the HTML UI</returns>
-        //private string ReadHtml()
-        //{
-        //    if (_path != null)
-        //    {
-        //        return File.ReadAllText(_path);
-        //    }
+        /// <summary>
+        /// Read the HTML as raw text.
+        /// </summary>
+        /// <returns>Raw text of the HTML UI</returns>
+        private string ReadHtml()
+        {
+            if (_path != null)
+            {
+                return File.ReadAllText(_path);
+            }
 
-        //    string file = Path.Combine(Directory, "Window.html");
-        //    return !File.Exists(file) ? "" : File.ReadAllText(file);
-        //}
+            string file = Path.Combine(Directory, "Window.html");
+            return !File.Exists(file) ? "" : File.ReadAllText(file);
+        }
 
         ////protected void OnPropertyChanged([CallerMemberName] string name = null)
         ////{
