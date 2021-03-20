@@ -1,17 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
+﻿using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Threading;
 using System.Windows;
-using System.Windows.Controls;
 using mshtml;
-using Microsoft.Web.WebView2.Core;
-using Microsoft.Web.WebView2.Wpf;
 
 namespace GHUI
 {
@@ -57,7 +48,7 @@ namespace GHUI
         {
             _path = path;
             InitializeComponent();
-            HtmlString = ReadHtml();
+            //HtmlString = ReadHtml();
             //ListenHtmlChange();
             //WebBrowser.Source = "https://www.microsoft.com";
             //WebBrowser.Source = new Uri(_path);
