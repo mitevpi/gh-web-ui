@@ -64,8 +64,8 @@ namespace GHUI
 
             if (Initialized)
             {
-                da.SetDataList(0, WebWindow.InputValues);
-                da.SetDataList(1, WebWindow.InputIds);
+                //da.SetDataList(0, WebWindow.InputValues);
+                //da.SetDataList(1, WebWindow.InputIds);
             }
             else
             {
