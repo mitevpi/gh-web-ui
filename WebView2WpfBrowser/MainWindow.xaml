@@ -1,0 +1,33 @@
+﻿<!--
+Copyright (C) Microsoft Corporation. All rights reserved.
+Use of this source code is governed by a BSD-style license that can be
+found in the LICENSE file.
+-->
+
+<Window x:Class="WebView2WpfBrowser.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        xmlns:local="clr-namespace:WebView2WpfBrowser"
+        x:Name="MyWindow"
+        Title="MainWindow"
+        Height="450"
+        Width="800"
+    >
+    <DockPanel>
+        <Grid x:Name="Layout">
+            <!-- If you want to use a specific version of WebView2 Runtime change EvergreenWebView2CreationProperties
+            to BYOWebView2CreationProperties and follow the steps in MainWindow.xaml
+            -->
+            <wv2:WebView2
+                x:Name="webView"
+                CreationProperties="{StaticResource EvergreenWebView2CreationProperties}"
+                Source="https://www.bing.com/"
+                NavigationStarting="WebView_NavigationStarting"
+                NavigationCompleted="WebView_NavigationCompleted"
+                CoreWebView2InitializationCompleted="WebView_CoreWebView2InitializationCompleted"
+            />
+        </Grid>
+    </DockPanel>
+</Window>
