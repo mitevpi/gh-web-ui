@@ -15,7 +15,7 @@ namespace GHUI
     //[ComVisible(true)]
     public partial class WebWindow : Window
     {
-        private readonly string _htmlPath;
+        private string _htmlPath;
         private readonly string _executingLocation = "";
         private WebView2 _webView;
 
@@ -44,14 +44,13 @@ namespace GHUI
             InitializeWebView();
             _webView.CoreWebView2InitializationCompleted += Navigate;
             _webView.SourceUpdated += Refresh;
-            _webView.SourceChanged += Navigate;
+            _webView.SourceChanged += Refresh;
         }
 
         private async Task InitializeWebViewAsync(WebView2 webView)
         {
             try
             {
-                //MessageBox.Show($"Location {_location}");
                 var env = await CoreWebView2Environment.CreateAsync(null, _executingLocation);
                 await webView.EnsureCoreWebView2Async(env);
             }
@@ -61,17 +60,17 @@ namespace GHUI
             }
         }
 
-        internal async void InitializeWebView()
+        private async void InitializeWebView()
         {
-            _webView = new WebView2();  //Create a webview2 control programatically
+            _webView = new WebView2();
 
             this.Docker.Children.Clear();
-            this.Docker.Children.Add(_webView);  //Add the webview2 to the dock panel
+            this.Docker.Children.Add(_webView);
 
             await InitializeWebViewAsync(_webView);
         }
 
-        internal void Navigate(object o, EventArgs e)
+        private void Navigate(object o, EventArgs e)
         {
             if (_webView != null && _webView.CoreWebView2 != null)
             {
@@ -80,9 +79,23 @@ namespace GHUI
             }
         }
 
-        internal void Refresh(object o, EventArgs e)
+        public void Navigate(string newPath)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                _htmlPath = newPath;
+                _webView.Source = new Uri(_htmlPath);
+            });
+        }
+
+        private void Refresh(object o, EventArgs e)
         {
             _webView.Reload();
+        }
+
+        public void Refresh()
+        {
+            Dispatcher.Invoke(() => _webView.Reload());
         }
     }
 }

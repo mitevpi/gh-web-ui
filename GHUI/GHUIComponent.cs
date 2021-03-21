@@ -64,6 +64,9 @@ namespace GHUI
 
             if (Initialized)
             {
+                // TODO: ADD SOME CHECK IF THE PATH ACTUALLY CHANGED
+                _webWindow.Navigate(path);
+                //_webWindow.Refresh();
                 da.SetDataList(0, WebWindow.InputValues);
                 da.SetDataList(1, WebWindow.InputIds);
             }
