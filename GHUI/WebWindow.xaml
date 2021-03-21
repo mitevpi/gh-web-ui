@@ -42,11 +42,23 @@
     <DockPanel>
         <!--<wv2:WebView2 Name="WebBrowser"
                       Source="https://www.microsoft.com" />-->
-        <wv2:WebView2
+        <Grid DockPanel.Dock="Top" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="30px"></RowDefinition>
+            </Grid.RowDefinitions>
+            <DockPanel Grid.Row="0" x:Name="Docker">
+                <TextBlock FontSize="10">WebView2 v1.1</TextBlock>
+            </DockPanel>
+            <DockPanel Grid.Row="1" >
+                <Button DockPanel.Dock="Right" Width="135" Height="30" Click="Button_Click">Refresh</Button>
+            </DockPanel>
+        </Grid>
+        <!--<wv2:WebView2
             x:Name="webView"
             Source="https://www.bing.com/"
             CreationProperties="{StaticResource EvergreenWebView2CreationProperties}"
-        />
+        />-->
     </DockPanel>
 
 
