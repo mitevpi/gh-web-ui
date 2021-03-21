@@ -30,10 +30,11 @@
                 <RowDefinition Height="*"></RowDefinition>
                 <RowDefinition Height="30px"></RowDefinition>
             </Grid.RowDefinitions>
-            <DockPanel Grid.Row="0" x:Name="Docker">
+            <DockPanel Grid.Row="0" x:Name="Docker"/>
+                <DockPanel Grid.Row="1" >
+                <Button DockPanel.Dock="Right" Width="135" Height="30" Click="Refresh">Refresh</Button>
             </DockPanel>
         </Grid>
     </DockPanel>
-
 
 </Window>

@@ -43,8 +43,8 @@ namespace GHUI
             InitializeComponent();
             InitializeWebView();
             _webView.CoreWebView2InitializationCompleted += Navigate;
-            _webView.SourceUpdated += Refresh;
-            _webView.SourceChanged += Refresh;
+            //_webView.SourceUpdated += Refresh;
+            //_webView.SourceChanged += Refresh;
         }
 
         private async Task InitializeWebViewAsync(WebView2 webView)
