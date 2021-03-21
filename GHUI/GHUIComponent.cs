@@ -82,25 +82,22 @@ namespace GHUI
 
         private void LaunchWindow(string path)
         {
-            _webWindow = WebWindow = new WebWindow(path);
-            _webWindow.Closed += (s, e) => Dispatcher.CurrentDispatcher.InvokeShutdown();
-            _webWindow.Show();
-            //if (!(_uiThread is null) && _uiThread.IsAlive) return;
-            //_uiThread = new Thread(() =>
-            //{
-            //    SynchronizationContext.SetSynchronizationContext(
-            //        new DispatcherSynchronizationContext(
-            //            Dispatcher.CurrentDispatcher));
-            //    // The dialog becomes the owner responsible for disposing the objects given to it.
-            //    _webWindow = WebWindow = new WebWindow(path);
-            //    _webWindow.Closed += (s, e) => Dispatcher.CurrentDispatcher.InvokeShutdown();
-            //    _webWindow.Show();
-            //    Dispatcher.Run();
-            //});
+            if (!(_uiThread is null) && _uiThread.IsAlive) return;
+            _uiThread = new Thread(() =>
+            {
+                SynchronizationContext.SetSynchronizationContext(
+                    new DispatcherSynchronizationContext(
+                        Dispatcher.CurrentDispatcher));
+                // The dialog becomes the owner responsible for disposing the objects given to it.
+                _webWindow = WebWindow = new WebWindow(path);
+                _webWindow.Closed += (s, e) => Dispatcher.CurrentDispatcher.InvokeShutdown();
+                _webWindow.Show();
+                Dispatcher.Run();
+            });
 
-            //_uiThread.SetApartmentState(ApartmentState.STA);
-            //_uiThread.IsBackground = true;
-            //_uiThread.Start();
+            _uiThread.SetApartmentState(ApartmentState.STA);
+            _uiThread.IsBackground = true;
+            _uiThread.Start();
         }
 
         private void ScheduleCallback(GH_Document document)

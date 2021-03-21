@@ -40,36 +40,14 @@ namespace GHUI
             _path = path;
             _location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\temp";
             InitializeComponent();
-
-            //WebBrowser.Source = new Uri(_path);
-            //WebBrowser.NavigateToString(HtmlString);
-            //WebBrowser.LoadCompleted += BrowserLoaded;
+            InitializeWebView();
         }
 
-
-        internal async void Navigate()
+        private async Task InitializeWebViewAsync(WebView2 webView)
         {
-            _webView = new WebView2();  //Create a webview2 control programatically
-
-            this.Docker.Children.Clear();
-            this.Docker.Children.Add(_webView);  //Add the webview2 to the dock panel
-
-            await InitializeAsync(_webView);
-
-            if (_webView != null && _webView.CoreWebView2 != null)
-            {
-                //navigate to website 
-                _webView.Source = new Uri(_path);
-                //webView.Source = new Uri("https://www.bing.com/");
-            }
-        }
-
-        private async Task InitializeAsync(WebView2 webView)
-        {
-            // wait for coreWebView2 initialization
             try
             {
-                MessageBox.Show($"Location {_location}");
+                //MessageBox.Show($"Location {_location}");
                 var env = await CoreWebView2Environment.CreateAsync(null, _location);
                 await webView.EnsureCoreWebView2Async(env);
             }
@@ -79,9 +57,30 @@ namespace GHUI
             }
         }
 
+        internal async void InitializeWebView()
+        {
+            _webView = new WebView2();  //Create a webview2 control programatically
+
+            this.Docker.Children.Clear();
+            this.Docker.Children.Add(_webView);  //Add the webview2 to the dock panel
+
+            await InitializeWebViewAsync(_webView);
+        }
+
+
+        internal void Navigate()
+        {
+            if (_webView != null && _webView.CoreWebView2 != null)
+            {
+                //navigate to website 
+                _webView.Source = new Uri(_path);
+            }
+        }
+
+
+
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show("Attempt to navigate to gh page..");
             Navigate();
         }
     }

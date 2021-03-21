@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:GHUI"
         xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
         mc:Ignorable="d"
-        Title="WebWindow"
+        Title="GHUI"
         Height="750"
         Width="500">
     <Window.Resources>
@@ -30,7 +30,7 @@
                 <RowDefinition Height="30px"></RowDefinition>
             </Grid.RowDefinitions>
             <DockPanel Grid.Row="0" x:Name="Docker">
-                <TextBlock FontSize="10">WebView2 v1.1</TextBlock>
+                <TextBlock FontSize="10">GHUI</TextBlock>
             </DockPanel>
             <DockPanel Grid.Row="1" >
                 <Button DockPanel.Dock="Right" Width="135" Height="30" Click="Button_Click">Refresh</Button>
