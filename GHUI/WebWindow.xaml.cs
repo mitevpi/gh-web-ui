@@ -15,7 +15,10 @@ namespace GHUI
     //[ComVisible(true)]
     public partial class WebWindow : Window
     {
-        private readonly string _path;
+        private readonly string _htmlPath;
+        private readonly string _executingLocation = "";
+        private WebView2 _webView;
+
 
         /// HTML VALUE
         /// <summary>
@@ -27,20 +30,21 @@ namespace GHUI
         /// List of the id properties of all the input elements in the DOM.
         /// </summary>
         public List<string> InputIds;
-        private WebView2 _webView;
-        private string _location = "";
 
 
         /// <summary>
         /// The WPF Container for the WebBrowser element which renders the user's HTML.
         /// </summary>
-        /// <param name="path">Path of the HTML file to render as UI.</param>
-        public WebWindow(string path)
+        /// <param name="htmlPath">Path of the HTML file to render as UI.</param>
+        public WebWindow(string htmlPath)
         {
-            _path = path;
-            _location = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\temp";
+            _htmlPath = htmlPath;
+            _executingLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\temp";
             InitializeComponent();
             InitializeWebView();
+            _webView.CoreWebView2InitializationCompleted += Navigate;
+            _webView.SourceUpdated += Refresh;
+            _webView.SourceChanged += Navigate;
         }
 
         private async Task InitializeWebViewAsync(WebView2 webView)
@@ -48,7 +52,7 @@ namespace GHUI
             try
             {
                 //MessageBox.Show($"Location {_location}");
-                var env = await CoreWebView2Environment.CreateAsync(null, _location);
+                var env = await CoreWebView2Environment.CreateAsync(null, _executingLocation);
                 await webView.EnsureCoreWebView2Async(env);
             }
             catch (Exception ex)
@@ -67,21 +71,18 @@ namespace GHUI
             await InitializeWebViewAsync(_webView);
         }
 
-
-        internal void Navigate()
+        internal void Navigate(object o, EventArgs e)
         {
             if (_webView != null && _webView.CoreWebView2 != null)
             {
                 //navigate to website 
-                _webView.Source = new Uri(_path);
+                _webView.Source = new Uri(_htmlPath);
             }
         }
 
-
-
-        private void Button_Click(object sender, RoutedEventArgs e)
+        internal void Refresh(object o, EventArgs e)
         {
-            Navigate();
+            _webView.Reload();
         }
     }
 }

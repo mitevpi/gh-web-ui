@@ -30,10 +30,6 @@
                 <RowDefinition Height="30px"></RowDefinition>
             </Grid.RowDefinitions>
             <DockPanel Grid.Row="0" x:Name="Docker">
-                <TextBlock FontSize="10">GHUI</TextBlock>
-            </DockPanel>
-            <DockPanel Grid.Row="1" >
-                <Button DockPanel.Dock="Right" Width="135" Height="30" Click="Button_Click">Refresh</Button>
             </DockPanel>
         </Grid>
     </DockPanel>
