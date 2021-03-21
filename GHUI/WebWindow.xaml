@@ -1,20 +1,4 @@
-﻿<!--<Window x:Class="GHUI.WebWindow"
-        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:local="clr-namespace:GHUI"
-        Topmost="True"
-        mc:Ignorable="d" Width="525.778" Height="777.333">
-    <Grid Background="White">
-        <Grid.ColumnDefinitions>
-        </Grid.ColumnDefinitions>
-        <WebBrowser Name="WebBrowser" Margin="10,10,10.333,9.667" />
-
-    </Grid>
-
-</Window>-->
-<Window x:Class="GHUI.WebWindow"
+﻿<Window x:Class="GHUI.WebWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -40,13 +24,18 @@
         <wv2:CoreWebView2CreationProperties x:Key="BYOWebView2CreationProperties" BrowserExecutableFolder="Replace this with BYO folder" />
     </Window.Resources>
     <DockPanel>
-        <!--<wv2:WebView2 Name="WebBrowser"
-                      Source="https://www.microsoft.com" />-->
-        <wv2:WebView2
-            x:Name="webView"
-            Source="https://www.bing.com/"
-            CreationProperties="{StaticResource EvergreenWebView2CreationProperties}"
-        />
+        <Grid DockPanel.Dock="Top" Margin="20">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*"></RowDefinition>
+                <RowDefinition Height="30px"></RowDefinition>
+            </Grid.RowDefinitions>
+            <DockPanel Grid.Row="0" x:Name="Docker">
+                <TextBlock FontSize="10">WebView2 v1.1</TextBlock>
+            </DockPanel>
+            <DockPanel Grid.Row="1" >
+                <Button DockPanel.Dock="Right" Width="135" Height="30" Click="Button_Click">Refresh</Button>
+            </DockPanel>
+        </Grid>
     </DockPanel>
 
 
