@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using System.Threading.Tasks;
 using System.Windows;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
@@ -16,9 +15,10 @@ namespace GHUI
     public partial class WebWindow : Window
     {
         private string _htmlPath;
-        private readonly string _executingLocation = "";
+        private string Directory => Dispatcher.Invoke(() => Path.GetDirectoryName(_htmlPath));
+        private string ExecutingLocation => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\temp";
         private WebView2 _webView;
-
+        private FileSystemWatcher _watcher;
 
         /// HTML VALUE
         /// <summary>
@@ -39,20 +39,28 @@ namespace GHUI
         public WebWindow(string htmlPath)
         {
             _htmlPath = htmlPath;
-            _executingLocation = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\temp";
             InitializeComponent();
             InitializeWebView();
             _webView.CoreWebView2InitializationCompleted += Navigate;
-            //_webView.SourceUpdated += Refresh;
-            //_webView.SourceChanged += Refresh;
+            ListenHtmlChange();
         }
 
-        private async Task InitializeWebViewAsync(WebView2 webView)
+        /// <summary>
+        /// Programatically initialize the WebView2 component.
+        /// </summary>
+        private async void InitializeWebView()
         {
+            _webView = new WebView2();
+
+            // clear everything in the WPF dock panel container
+            Docker.Children.Clear();
+            Docker.Children.Add(_webView);
+
+            // initialize the webview 2 instance
             try
             {
-                var env = await CoreWebView2Environment.CreateAsync(null, _executingLocation);
-                await webView.EnsureCoreWebView2Async(env);
+                var env = await CoreWebView2Environment.CreateAsync(null, ExecutingLocation);
+                await _webView.EnsureCoreWebView2Async(env);
             }
             catch (Exception ex)
             {
@@ -60,25 +68,21 @@ namespace GHUI
             }
         }
 
-        private async void InitializeWebView()
-        {
-            _webView = new WebView2();
-
-            this.Docker.Children.Clear();
-            this.Docker.Children.Add(_webView);
-
-            await InitializeWebViewAsync(_webView);
-        }
-
+        /// <summary>
+        /// Navigate to a new HTML file path.
+        /// </summary>
         private void Navigate(object o, EventArgs e)
         {
-            if (_webView != null && _webView.CoreWebView2 != null)
+            if (_webView?.CoreWebView2 != null)
             {
-                //navigate to website 
                 _webView.Source = new Uri(_htmlPath);
             }
         }
 
+        /// <summary>
+        /// Navigate to a new HTML file path.
+        /// </summary>
+        /// <param name="newPath">The file path of the new HTML file to load.</param>
         public void Navigate(string newPath)
         {
             Dispatcher.Invoke(() =>
@@ -88,14 +92,46 @@ namespace GHUI
             });
         }
 
+        /// <summary>
+        /// Reload the current HTML file.
+        /// </summary>
         private void Refresh(object o, EventArgs e)
         {
             _webView.Reload();
         }
 
-        public void Refresh()
+        /// <summary>
+        /// Initialize a file-watcher object on the HTML file being used.
+        /// </summary>
+        private void ListenHtmlChange()
         {
-            Dispatcher.Invoke(() => _webView.Reload());
+            _watcher = new FileSystemWatcher(Directory)
+            {
+                NotifyFilter = NotifyFilters.LastAccess
+                               | NotifyFilters.LastWrite
+                               | NotifyFilters.FileName
+                               | NotifyFilters.CreationTime
+                               | NotifyFilters.Size
+                               | NotifyFilters.DirectoryName
+                               | NotifyFilters.Attributes
+                               | NotifyFilters.Security,
+                //Filter = "*.html"
+            };
+            _watcher.Changed += OnHtmlChanged;
+            _watcher.EnableRaisingEvents = true;
+            _watcher.IncludeSubdirectories = true;
+        }
+
+        /// <summary>
+        /// Method handler for when a change is detected in the HTML file. This method will
+        /// trigger a reload on the HTML file.
+        /// </summary>
+        private void OnHtmlChanged(object source, FileSystemEventArgs e)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                _webView.Reload();
+            });
         }
     }
 }
