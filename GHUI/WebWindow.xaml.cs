@@ -5,6 +5,12 @@ using System.Reflection;
 using System.Windows;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
+using Microsoft.Web.WebView2.Core.DevToolsProtocolExtension;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Timers;
+using GHUI.Models;
+using Newtonsoft.Json;
 
 namespace GHUI
 {
@@ -14,23 +20,60 @@ namespace GHUI
     //[ComVisible(true)]
     public partial class WebWindow : Window
     {
+        /// <summary>
+        /// The path of the HTML file which is being served as the user interface.
+        /// </summary>
         private string _htmlPath;
+
+        /// <summary>
+        /// The directory where the HTML file used for the UI lives.
+        /// </summary>
         private string Directory => Dispatcher.Invoke(() => Path.GetDirectoryName(_htmlPath));
+
+        /// <summary>
+        /// A special "temp" folder where WebView2 does the execution. This should be created in the
+        /// Grasshopper/Libraries directory.
+        /// </summary>
         private string ExecutingLocation => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\temp";
+
+        private string DomQueryScript => File.ReadAllText(
+            Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) +
+            "\\QueryInputElementsInDOM.js");
+
+        /// <summary>
+        ///The WebView2 instance which is being executed in this component.
+        /// </summary>
         private WebView2 _webView;
+
+        /// <summary>
+        /// Class for watching file changes in the source HTML file. Allows for reload triggering
+        /// when the file is updated.
+        /// </summary>
         private FileSystemWatcher _watcher;
 
-        /// HTML VALUE
+        /// <summary>
+        /// A collection of DomInputModel classes - representing the relevant data from the HTML
+        /// `input` elements. 
+        /// </summary>
+        private List<DomInputModel> _domInputModels;
+
+        /// <summary>
+        /// Developer-focused tooling that exposes some more DOM-specific events and utilities.
+        /// </summary>
+        private DevToolsProtocolHelper _cdpHelper;
+
+        private Timer _timer;
+
+        // PUBLIC FIELDS
         /// <summary>
         /// List of the current values of all the input elements in the DOM.
         /// </summary>
-        public List<string> InputValues;
+        public List<string> InputValues => _domInputModels?.Select(s => s.value).ToList();
 
         /// <summary>
         /// List of the id properties of all the input elements in the DOM.
         /// </summary>
-        public List<string> InputIds;
-
+        public List<string> InputIds => _domInputModels?.Select(s => s.id).ToList();
 
         /// <summary>
         /// The WPF Container for the WebBrowser element which renders the user's HTML.
@@ -43,6 +86,79 @@ namespace GHUI
             InitializeWebView();
             _webView.CoreWebView2InitializationCompleted += Navigate;
             ListenHtmlChange();
+        }
+
+        /// <summary>
+        /// Run the DOM Query script (JS) to get all the input elements.
+        /// </summary>
+        async Task RunDomInputQuery()
+        {
+            string scriptResult = await _webView.ExecuteScriptAsync(DomQueryScript);
+
+            dynamic deserializedDomModels = JsonConvert.DeserializeObject(scriptResult);
+            List<DomInputModel> domInputModels = new List<DomInputModel>();
+            foreach (var s in deserializedDomModels)
+            {
+                DomInputModel domInputModel = JsonConvert.DeserializeObject<DomInputModel>(s.ToString());
+                domInputModels.Add(domInputModel);
+            }
+
+            _domInputModels = domInputModels;
+        }
+
+        /// <summary>
+        /// Initialize the timer which will query the DOM at the specified interval.
+        /// TODO: Figure out how to run this only when the user interacts with the DOM.
+        /// </summary>
+        private void InitializeTimer()
+        {
+            _timer = new Timer();
+            _timer.Elapsed += DisplayTimeEvent;
+            _timer.Interval = 1000; // 1000 ms is one second
+            _timer.Start();
+        }
+
+        /// <summary>
+        /// Run the DOM query method every tick of the timer.
+        /// </summary>
+        private void DisplayTimeEvent(object source, ElapsedEventArgs e)
+        {
+            Dispatcher.Invoke(() => RunDomInputQuery());
+        }
+
+        /// <summary>
+        /// Subscribe to the DocumentUpdated event of WebView2.
+        /// </summary>
+        private async void SubscribeToDocumentUpdated()
+        {
+            await _cdpHelper.DOM.EnableAsync();
+            _cdpHelper.DOM.DocumentUpdated += OnDocumentUpdated;
+        }
+
+        /// <summary>
+        /// What to do when the Document is updated. Currently somewhat redundant functionality with
+        /// the FileWatcher doing the same essentially.
+        /// </summary>
+        private void OnDocumentUpdated(object sender, DOM.DocumentUpdatedEventArgs args)
+        {
+            InitializeTimer();
+            //RunDomInputQuery();
+        }
+
+        /// <summary>
+        /// Initialize the DevTools helper class.
+        /// </summary>
+        private void InitializeDevToolsProtocolHelper()
+        {
+            if (_webView == null || _webView.CoreWebView2 == null)
+            {
+                throw new Exception("Initialize WebView before using DevToolsProtocolHelper.");
+            }
+
+            if (_cdpHelper == null)
+            {
+                _cdpHelper = _webView.CoreWebView2.GetDevToolsProtocolHelper();
+            }
         }
 
         /// <summary>
@@ -61,6 +177,8 @@ namespace GHUI
             {
                 var env = await CoreWebView2Environment.CreateAsync(null, ExecutingLocation);
                 await _webView.EnsureCoreWebView2Async(env);
+                InitializeDevToolsProtocolHelper();
+                SubscribeToDocumentUpdated();
             }
             catch (Exception ex)
             {
@@ -93,14 +211,6 @@ namespace GHUI
         }
 
         /// <summary>
-        /// Reload the current HTML file.
-        /// </summary>
-        private void Refresh(object o, EventArgs e)
-        {
-            _webView.Reload();
-        }
-
-        /// <summary>
         /// Initialize a file-watcher object on the HTML file being used.
         /// </summary>
         private void ListenHtmlChange()
@@ -128,10 +238,7 @@ namespace GHUI
         /// </summary>
         private void OnHtmlChanged(object source, FileSystemEventArgs e)
         {
-            Dispatcher.Invoke(() =>
-            {
-                _webView.Reload();
-            });
+            Dispatcher.Invoke(() => { _webView.Reload(); });
         }
     }
 }

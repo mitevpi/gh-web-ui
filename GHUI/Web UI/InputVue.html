@@ -40,13 +40,16 @@
 <br>
 <div id="app">
     <input type="text" v-model="textInput" id="fname" name="fname">
+
     <br>
     <input type="range" id="slide" name="slide" v-model="sliderInput">
     <br>
     <img width="200" src="https://vuejs.org/images/logo.png" alt="Vue logo">
     <h1>{{ greeting }}</h1>
+
     <h3>{{ textInput }}</h3>
     <h3>{{ sliderInput }}</h3>
+
     <ul>
         <li>
             To learn more about Vue, visit
@@ -77,6 +80,7 @@
             discordURL: 'https://chat.vuejs.org',
             forumURL: 'http://forum.vuejs.org/',
             textInput: "",
+            textInput2: "",
             sliderInput: ""
         },
         methods: {
