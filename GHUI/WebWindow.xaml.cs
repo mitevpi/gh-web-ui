@@ -1,186 +1,244 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading;
+using System.Reflection;
 using System.Windows;
-using mshtml;
+using Microsoft.Web.WebView2.Core;
+using Microsoft.Web.WebView2.Wpf;
+using Microsoft.Web.WebView2.Core.DevToolsProtocolExtension;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Timers;
+using GHUI.Models;
+using Newtonsoft.Json;
 
 namespace GHUI
 {
     /// <summary>
     /// Interaction logic for the WPF WebBrowser
     /// </summary>
-    [ComVisible(true)]
+    //[ComVisible(true)]
     public partial class WebWindow : Window
     {
-        // GENERIC SETUP
-        public event PropertyChangedEventHandler PropertyChanged;
-        //private static string Path => Assembly.GetExecutingAssembly().Location;
+        /// <summary>
+        /// The path of the HTML file which is being served as the user interface.
+        /// </summary>
+        private string _htmlPath;
 
-        private readonly string _path;
-        private string Directory => Dispatcher.Invoke(() => Path.GetDirectoryName(_path));
+        /// <summary>
+        /// The directory where the HTML file used for the UI lives.
+        /// </summary>
+        private string Directory => Dispatcher.Invoke(() => Path.GetDirectoryName(_htmlPath));
 
-        // HTML QUERY
-        private HTMLDocument Doc => Dispatcher.Invoke(() => (HTMLDocument) WebBrowser.Document);
-        private IHTMLElementCollection DocElements => Dispatcher.Invoke(() => Doc.getElementsByTagName("HTML"));
-        private IHTMLElementCollection DocInputElements => Dispatcher.Invoke(() => Doc.getElementsByTagName("input"));
+        /// <summary>
+        /// A special "temp" folder where WebView2 does the execution. This should be created in the
+        /// Grasshopper/Libraries directory.
+        /// </summary>
+        private string ExecutingLocation => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\temp";
 
-        // HTML READ
+        private string DomQueryScript => File.ReadAllText(
+            Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) +
+            "\\QueryInputElementsInDOM.js");
+
+        /// <summary>
+        ///The WebView2 instance which is being executed in this component.
+        /// </summary>
+        private WebView2 _webView;
+
+        /// <summary>
+        /// Class for watching file changes in the source HTML file. Allows for reload triggering
+        /// when the file is updated.
+        /// </summary>
         private FileSystemWatcher _watcher;
-        private string HtmlString { get; set; }
 
-        /// HTML VALUE
+        /// <summary>
+        /// A collection of DomInputModel classes - representing the relevant data from the HTML
+        /// `input` elements. 
+        /// </summary>
+        private List<DomInputModel> _domInputModels;
+
+        /// <summary>
+        /// Developer-focused tooling that exposes some more DOM-specific events and utilities.
+        /// </summary>
+        private DevToolsProtocolHelper _cdpHelper;
+
+        private Timer _timer;
+
+        // PUBLIC FIELDS
         /// <summary>
         /// List of the current values of all the input elements in the DOM.
         /// </summary>
-        public List<string> InputValues => Dispatcher.Invoke(GetInputValues);
+        public List<string> InputValues => _domInputModels?.Select(s => s.value).ToList();
 
         /// <summary>
         /// List of the id properties of all the input elements in the DOM.
         /// </summary>
-        public List<string> InputIds => Dispatcher.Invoke(GetInputIds);
-
+        public List<string> InputIds => _domInputModels?.Select(s => s.id).ToList();
 
         /// <summary>
         /// The WPF Container for the WebBrowser element which renders the user's HTML.
         /// </summary>
-        /// <param name="path">Path of the HTML file to render as UI.</param>
-        public WebWindow(string path)
+        /// <param name="htmlPath">Path of the HTML file to render as UI.</param>
+        public WebWindow(string htmlPath)
         {
-            _path = path;
+            _htmlPath = htmlPath;
             InitializeComponent();
-            HtmlString = ReadHtml();
+            InitializeWebView();
+            _webView.CoreWebView2InitializationCompleted += Navigate;
             ListenHtmlChange();
-            WebBrowser.NavigateToString(HtmlString);
-            WebBrowser.LoadCompleted += BrowserLoaded;
         }
 
         /// <summary>
-        /// Return a useful value from the HTML (Input) Element based on what type of element it is.
+        /// Run the DOM Query script (JS) to get all the input elements.
         /// </summary>
-        /// <param name="vElement">HTML Input Element from the DOM.</param>
-        /// <returns>The value of the HTML Input Element.</returns>
-        private string ParseValue(HTMLInputElement vElement)
+        async Task RunDomInputQuery()
         {
-            string type = vElement.type;
-            switch (type)
+            string scriptResult = await _webView.ExecuteScriptAsync(DomQueryScript);
+
+            dynamic deserializedDomModels = JsonConvert.DeserializeObject(scriptResult);
+            List<DomInputModel> domInputModels = new List<DomInputModel>();
+            foreach (var s in deserializedDomModels)
             {
-                case "range":
-                    return vElement.value;
-                case "radio":
-                    return vElement.@checked.ToString();
-                case "checkbox":
-                    return vElement.@checked.ToString();
-                default:
-                    return vElement.value;
+                DomInputModel domInputModel = JsonConvert.DeserializeObject<DomInputModel>(s.ToString());
+                domInputModels.Add(domInputModel);
+            }
+
+            _domInputModels = domInputModels;
+        }
+
+        /// <summary>
+        /// Initialize the timer which will query the DOM at the specified interval.
+        /// TODO: Figure out how to run this only when the user interacts with the DOM.
+        /// </summary>
+        private void InitializeTimer()
+        {
+            _timer = new Timer();
+            _timer.Elapsed += DisplayTimeEvent;
+            _timer.Interval = 1000; // 1000 ms is one second
+            _timer.Start();
+        }
+
+        /// <summary>
+        /// Run the DOM query method every tick of the timer.
+        /// </summary>
+        private void DisplayTimeEvent(object source, ElapsedEventArgs e)
+        {
+            Dispatcher.Invoke(() => RunDomInputQuery());
+        }
+
+        /// <summary>
+        /// Subscribe to the DocumentUpdated event of WebView2.
+        /// </summary>
+        private async void SubscribeToDocumentUpdated()
+        {
+            await _cdpHelper.DOM.EnableAsync();
+            _cdpHelper.DOM.DocumentUpdated += OnDocumentUpdated;
+        }
+
+        /// <summary>
+        /// What to do when the Document is updated. Currently somewhat redundant functionality with
+        /// the FileWatcher doing the same essentially.
+        /// </summary>
+        private void OnDocumentUpdated(object sender, DOM.DocumentUpdatedEventArgs args)
+        {
+            InitializeTimer();
+            //RunDomInputQuery();
+        }
+
+        /// <summary>
+        /// Initialize the DevTools helper class.
+        /// </summary>
+        private void InitializeDevToolsProtocolHelper()
+        {
+            if (_webView == null || _webView.CoreWebView2 == null)
+            {
+                throw new Exception("Initialize WebView before using DevToolsProtocolHelper.");
+            }
+
+            if (_cdpHelper == null)
+            {
+                _cdpHelper = _webView.CoreWebView2.GetDevToolsProtocolHelper();
             }
         }
 
         /// <summary>
-        /// Get the values of all the input elements in the DOM.
+        /// Programatically initialize the WebView2 component.
         /// </summary>
-        /// <returns>List of values.</returns>
-        private List<string> GetInputValues()
+        private async void InitializeWebView()
         {
-            return (from HTMLInputElement vElement in DocInputElements
-                select ParseValue(vElement)).ToList();
-        }
+            _webView = new WebView2();
 
-        /// <summary>
-        /// Get the ids of all the input elements in the DOM.
-        /// </summary>
-        /// <returns>List of ids.</returns>
-        private List<string> GetInputIds()
-        {
-            return (from HTMLInputElement vElement in DocInputElements
-                select vElement.id).ToList();
-        }
+            // clear everything in the WPF dock panel container
+            Docker.Children.Clear();
+            Docker.Children.Add(_webView);
 
-        /// <summary>
-        /// Event handler for when the WPF Web Browser is loaded and initialized.
-        /// </summary>
-        private void BrowserLoaded(object o, EventArgs e)
-        {
-            // add click handler
-            HTMLDocumentEvents2_Event iEvent = (HTMLDocumentEvents2_Event) Doc;
-            iEvent.onclick += ClickEventHandler;
-        }
-
-        /// <summary>
-        /// Event handler for clicking on the UI. Placeholder for "real" event
-        /// listeners that would update values of input elements on this instance.
-        /// </summary>
-        /// <param name="e"></param>
-        /// <returns></returns>
-        private bool ClickEventHandler(IHTMLEventObj e)
-        {
-            Debug.WriteLine("CLICK");
-
-            return true;
-        }
-
-        /// <summary>
-        /// Read the HTML as raw text.
-        /// </summary>
-        /// <returns>Raw text of the HTML UI</returns>
-        private string ReadHtml()
-        {
-            if (_path != null)
+            // initialize the webview 2 instance
+            try
             {
-                return File.ReadAllText(_path);
+                var env = await CoreWebView2Environment.CreateAsync(null, ExecutingLocation);
+                await _webView.EnsureCoreWebView2Async(env);
+                InitializeDevToolsProtocolHelper();
+                SubscribeToDocumentUpdated();
             }
-
-            string file = Path.Combine(Directory, "Window.html");
-            return !File.Exists(file) ? "" : File.ReadAllText(file);
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
         }
 
-        //protected void OnPropertyChanged([CallerMemberName] string name = null)
-        //{
-        //    PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
-        //    //_gh.SetData(0, Value);
-        //}
+        /// <summary>
+        /// Navigate to a new HTML file path.
+        /// </summary>
+        private void Navigate(object o, EventArgs e)
+        {
+            if (_webView?.CoreWebView2 != null)
+            {
+                _webView.Source = new Uri(_htmlPath);
+            }
+        }
 
         /// <summary>
-        /// Initialize watching for changes of the HTML file so it can be re-rendered.
+        /// Navigate to a new HTML file path.
+        /// </summary>
+        /// <param name="newPath">The file path of the new HTML file to load.</param>
+        public void Navigate(string newPath)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                _htmlPath = newPath;
+                _webView.Source = new Uri(_htmlPath);
+            });
+        }
+
+        /// <summary>
+        /// Initialize a file-watcher object on the HTML file being used.
         /// </summary>
         private void ListenHtmlChange()
         {
-            _watcher = new FileSystemWatcher
+            _watcher = new FileSystemWatcher(Directory)
             {
-                Path = Directory,
                 NotifyFilter = NotifyFilters.LastAccess
                                | NotifyFilters.LastWrite
                                | NotifyFilters.FileName
-                               | NotifyFilters.DirectoryName,
-                Filter = "*.html"
+                               | NotifyFilters.CreationTime
+                               | NotifyFilters.Size
+                               | NotifyFilters.DirectoryName
+                               | NotifyFilters.Attributes
+                               | NotifyFilters.Security,
+                //Filter = "*.html"
             };
             _watcher.Changed += OnHtmlChanged;
             _watcher.EnableRaisingEvents = true;
+            _watcher.IncludeSubdirectories = true;
         }
 
         /// <summary>
-        /// Method handler for when a change is detected in the HTML file.
+        /// Method handler for when a change is detected in the HTML file. This method will
+        /// trigger a reload on the HTML file.
         /// </summary>
         private void OnHtmlChanged(object source, FileSystemEventArgs e)
         {
-            // Destroy the watcher
-            _watcher.Dispose();
-            _watcher = null;
-
-            // Wait a fraction of a sec (hack-y preventing of thread conflicts by accessing the
-            // same file at the same time (Watcher and File Reader).
-            Thread.Sleep(500);
-            Dispatcher.Invoke(() =>
-            {
-                // Reread the HTML, render it, and start another FileWatcher
-                HtmlString = ReadHtml();
-                WebBrowser.NavigateToString(HtmlString);
-                ListenHtmlChange();
-            });
+            Dispatcher.Invoke(() => { _webView.Reload(); });
         }
     }
 }

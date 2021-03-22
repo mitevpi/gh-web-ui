@@ -16,6 +16,8 @@ namespace GHUI
         // Separate thread to run Ui on
         private Thread _uiThread;
 
+        private string _oldPath;
+
         /// <summary>
         /// Each implementation of GH_Component must provide a public 
         /// constructor without any arguments.
@@ -62,17 +64,19 @@ namespace GHUI
                 return;
             }
 
+            // if webview2 is initialized
             if (Initialized)
             {
+                _webWindow.Navigate(path);
+
                 da.SetDataList(0, WebWindow.InputValues);
                 da.SetDataList(1, WebWindow.InputIds);
             }
             else
             {
-                //WebWindow = new WebWindow(path);
-                //WebWindow.Show();
                 LaunchWindow(path);
                 Initialized = true;
+                _oldPath = path;
             }
 
             GH_Document doc = OnPingDocument();
