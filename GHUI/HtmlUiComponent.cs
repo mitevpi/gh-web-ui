@@ -5,7 +5,7 @@ using Grasshopper.Kernel;
 
 namespace GHUI
 {
-    public class GhuiComponent : GH_Component
+    public class HtmlUiComponent : GH_Component
     {
         public bool Initialized;
         public WebWindow WebWindow;
@@ -16,7 +16,7 @@ namespace GHUI
         // Separate thread to run Ui on
         private Thread _uiThread;
 
-        private string _oldPath;
+        //private string _oldPath;
 
         /// <summary>
         /// Each implementation of GH_Component must provide a public 
@@ -25,10 +25,10 @@ namespace GHUI
         /// Subcategory the panel. If you use non-existing tab or panel names, 
         /// new tabs/panels will automatically be created.
         /// </summary>
-        public GhuiComponent()
-            : base("GrasshopperUI", "GHUI",
-                "Launch a UI Window.",
-                "UI", "Window")
+        public HtmlUiComponent()
+            : base("Launch HTML UI", "HTML UI",
+                "Launch a UI Window from a HTML file.",
+                "UI", "Main")
         {
         }
 
@@ -39,6 +39,8 @@ namespace GHUI
         {
             pManager.AddTextParameter("HTML Path", "path", "Where to look for the HTML interface.",
                 GH_ParamAccess.item);
+            pManager.AddBooleanParameter("Show Window", "show", "Toggle for showing/hiding the interface window.",
+                GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -48,6 +50,8 @@ namespace GHUI
         {
             pManager.AddTextParameter("Input Values", "vals", "Value of HTML Inputs", GH_ParamAccess.list);
             pManager.AddTextParameter("Input Ids", "ids", "Ids of HTML Inputs", GH_ParamAccess.list);
+            pManager.AddTextParameter("Input Names", "names", "Names of HTML Inputs", GH_ParamAccess.list);
+            pManager.AddTextParameter("Input Types", "types", "Types of HTML Inputs", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -57,12 +61,14 @@ namespace GHUI
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess da)
         {
+            // get input from gh component inputs
             string path = null;
+            bool show = false;
 
-            if (!da.GetData(0, ref path))
-            {
-                return;
-            }
+            if (!da.GetData(0, ref path)) return;
+            if (!da.GetData<bool>(1, ref show)) return;
+
+            if (!show) return;
 
             // if webview2 is initialized
             if (Initialized)
@@ -71,12 +77,14 @@ namespace GHUI
 
                 da.SetDataList(0, WebWindow.InputValues);
                 da.SetDataList(1, WebWindow.InputIds);
+                da.SetDataList(2, WebWindow.InputNames);
+                da.SetDataList(3, WebWindow.InputTypes);
             }
             else
             {
                 LaunchWindow(path);
                 Initialized = true;
-                _oldPath = path;
+                //_oldPath = path;
             }
 
             GH_Document doc = OnPingDocument();
@@ -94,7 +102,7 @@ namespace GHUI
                         Dispatcher.CurrentDispatcher));
                 // The dialog becomes the owner responsible for disposing the objects given to it.
                 _webWindow = WebWindow = new WebWindow(path);
-                _webWindow.Closed += (s, e) => Dispatcher.CurrentDispatcher.InvokeShutdown();
+                _webWindow.Closed += _webWindow_Closed;
                 _webWindow.Show();
                 Dispatcher.Run();
             });
@@ -102,6 +110,12 @@ namespace GHUI
             _uiThread.SetApartmentState(ApartmentState.STA);
             _uiThread.IsBackground = true;
             _uiThread.Start();
+        }
+
+        private void _webWindow_Closed(object sender, EventArgs e)
+        {
+            Initialized = false;
+            Dispatcher.CurrentDispatcher.InvokeShutdown();
         }
 
         private void ScheduleCallback(GH_Document document)
