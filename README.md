@@ -1,9 +1,13 @@
 # Grasshopper Web UI
 
+[![Generic badge](https://img.shields.io/badge/Demo-YouTube-Green.svg)](https://youtu.be/S-c7z2ezoZo)
+
+
+![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/mitevpi/gh-web-ui)
+![GitHub last commit](https://img.shields.io/github/last-commit/mitevpi/gh-web-ui)
 ![GitHub issues](https://img.shields.io/github/issues/mitevpi/gh-web-ui)
 ![GitHub contributors](https://img.shields.io/github/contributors/mitevpi/gh-web-ui)
 ![GitHub](https://img.shields.io/github/license/mitevpi/gh-web-ui)
-[![Generic badge](https://img.shields.io/badge/Demo-YouTube-Green.svg)](https://youtu.be/S-c7z2ezoZo)
 
 Prototype for building a Grasshopper interface using native web components.
 
