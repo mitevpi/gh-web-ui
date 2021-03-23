@@ -39,6 +39,8 @@ namespace GHUI
         {
             pManager.AddTextParameter("HTML Path", "path", "Where to look for the HTML interface.",
                 GH_ParamAccess.item);
+            pManager.AddBooleanParameter("Show Window", "show", "Toggle for showing/hiding the interface window.",
+                GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -57,12 +59,14 @@ namespace GHUI
         /// to store data in output parameters.</param>
         protected override void SolveInstance(IGH_DataAccess da)
         {
+            // get input from gh component inputs
             string path = null;
+            bool show = false;
 
-            if (!da.GetData(0, ref path))
-            {
-                return;
-            }
+            if (!da.GetData(0, ref path)) return;
+            if (!da.GetData<bool>(1, ref show)) return;
+
+            if (!show) return;
 
             // if webview2 is initialized
             if (Initialized)
@@ -94,7 +98,7 @@ namespace GHUI
                         Dispatcher.CurrentDispatcher));
                 // The dialog becomes the owner responsible for disposing the objects given to it.
                 _webWindow = WebWindow = new WebWindow(path);
-                _webWindow.Closed += (s, e) => Dispatcher.CurrentDispatcher.InvokeShutdown();
+                _webWindow.Closed += _webWindow_Closed;
                 _webWindow.Show();
                 Dispatcher.Run();
             });
@@ -102,6 +106,12 @@ namespace GHUI
             _uiThread.SetApartmentState(ApartmentState.STA);
             _uiThread.IsBackground = true;
             _uiThread.Start();
+        }
+
+        private void _webWindow_Closed(object sender, EventArgs e)
+        {
+            Initialized = false;
+            Dispatcher.CurrentDispatcher.InvokeShutdown();
         }
 
         private void ScheduleCallback(GH_Document document)

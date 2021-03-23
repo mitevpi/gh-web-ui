@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Windows;
@@ -7,10 +9,13 @@ using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Wpf;
 using Microsoft.Web.WebView2.Core.DevToolsProtocolExtension;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Timers;
+using System.Windows.Threading;
 using GHUI.Models;
 using Newtonsoft.Json;
+using Timer = System.Timers.Timer;
 
 namespace GHUI
 {
@@ -88,10 +93,11 @@ namespace GHUI
             ListenHtmlChange();
         }
 
+
         /// <summary>
         /// Run the DOM Query script (JS) to get all the input elements.
         /// </summary>
-        async Task RunDomInputQuery()
+        async void RunDomInputQuery()
         {
             string scriptResult = await _webView.ExecuteScriptAsync(DomQueryScript);
 
@@ -123,7 +129,7 @@ namespace GHUI
         /// </summary>
         private void DisplayTimeEvent(object source, ElapsedEventArgs e)
         {
-            Dispatcher.Invoke(() => RunDomInputQuery());
+            Dispatcher.BeginInvoke(new Action(() => { RunDomInputQuery(); }));
         }
 
         /// <summary>
@@ -203,11 +209,11 @@ namespace GHUI
         /// <param name="newPath">The file path of the new HTML file to load.</param>
         public void Navigate(string newPath)
         {
-            Dispatcher.Invoke(() =>
+            Dispatcher.BeginInvoke(new Action(() =>
             {
                 _htmlPath = newPath;
                 _webView.Source = new Uri(_htmlPath);
-            });
+            }));
         }
 
         /// <summary>
