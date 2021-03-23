@@ -1,0 +1,6 @@
+Copy "$(TargetPath)" "$(TargetDir)$(ProjectName).gha"
+
+copy "$(TargetDir)" "$(AppData)\Grasshopper\libraries"
+copy "$(TargetDir)\JS" "$(AppData)\Grasshopper\libraries"
+
+copy "$(TargetDir)\runtimes\win-x64\native\WebView2Loader.dll" "$(AppData)\Grasshopper\libraries\WebView2Loader.dll"
