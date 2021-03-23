@@ -5,7 +5,7 @@ using Grasshopper.Kernel;
 
 namespace GHUI
 {
-    public class GhuiComponent : GH_Component
+    public class HtmlUiComponent : GH_Component
     {
         public bool Initialized;
         public WebWindow WebWindow;
@@ -16,7 +16,7 @@ namespace GHUI
         // Separate thread to run Ui on
         private Thread _uiThread;
 
-        private string _oldPath;
+        //private string _oldPath;
 
         /// <summary>
         /// Each implementation of GH_Component must provide a public 
@@ -25,10 +25,10 @@ namespace GHUI
         /// Subcategory the panel. If you use non-existing tab or panel names, 
         /// new tabs/panels will automatically be created.
         /// </summary>
-        public GhuiComponent()
-            : base("GrasshopperUI", "GHUI",
-                "Launch a UI Window.",
-                "UI", "Window")
+        public HtmlUiComponent()
+            : base("Launch HTML UI", "HTML UI",
+                "Launch a UI Window from a HTML file.",
+                "UI", "Main")
         {
         }
 
@@ -50,6 +50,8 @@ namespace GHUI
         {
             pManager.AddTextParameter("Input Values", "vals", "Value of HTML Inputs", GH_ParamAccess.list);
             pManager.AddTextParameter("Input Ids", "ids", "Ids of HTML Inputs", GH_ParamAccess.list);
+            pManager.AddTextParameter("Input Names", "names", "Names of HTML Inputs", GH_ParamAccess.list);
+            pManager.AddTextParameter("Input Types", "types", "Types of HTML Inputs", GH_ParamAccess.list);
         }
 
         /// <summary>
@@ -75,12 +77,14 @@ namespace GHUI
 
                 da.SetDataList(0, WebWindow.InputValues);
                 da.SetDataList(1, WebWindow.InputIds);
+                da.SetDataList(2, WebWindow.InputNames);
+                da.SetDataList(3, WebWindow.InputTypes);
             }
             else
             {
                 LaunchWindow(path);
                 Initialized = true;
-                _oldPath = path;
+                //_oldPath = path;
             }
 
             GH_Document doc = OnPingDocument();
