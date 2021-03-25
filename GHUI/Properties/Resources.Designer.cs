@@ -61,6 +61,88 @@ namespace GHUI.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to document.addEventListener(&apos;click&apos;, function (event) {
+        ///    const elem = event.target;
+        ///    const returnObject =
+        ///    {
+        ///        type: &apos;click&apos;,
+        ///        targetId: elem.id,
+        ///        targetName: elem.name,
+        ///        targetType: elem.type,
+        ///        targetValue: elem.value,
+        ///        targetTagName: elem.tagName
+        ///    };
+        ///    //console.log(returnObject);
+        ///    window.chrome.webview.postMessage(returnObject);
+        ///});
+        ///
+        ///document.addEventListener(&apos;keydown&apos;, function (event) {
+        ///    const returnObject =
+        ///    {
+        ///        type [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string AddDocumentClickListener {
+            get {
+                return ResourceManager.GetString("AddDocumentClickListener", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap button {
+            get {
+                object obj = ResourceManager.GetObject("button", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap div {
+            get {
+                object obj = ResourceManager.GetObject("div", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap label {
+            get {
+                object obj = ResourceManager.GetObject("label", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to function queryInputElements() {
+        ///    const returnObjects = [];
+        ///    const inputElements = document.getElementsByTagName(&apos;input&apos;);
+        ///
+        ///    for (const c of inputElements) {
+        ///        const inputData = new Object();
+        ///
+        ///        inputData.id = c.id;
+        ///        inputData.value = c.value;
+        ///        inputData.name = c.name;
+        ///        inputData.max = c.max;
+        ///        inputData.min = c.min;
+        ///        inputData.isChecked = c.checked;
+        ///        inputData.type = c.type;
+        ///        returnObjects.push(inputData);
+        ///    }
+        ///    return  [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string QueryInputElementsInDOM {
+            get {
+                return ResourceManager.GetString("QueryInputElementsInDOM", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
         internal static System.Drawing.Bitmap slider {

@@ -34,7 +34,7 @@ namespace GHUI
             InitializeComponent();
             _webView2WrapperInstance = new WebView2Wrapper(htmlPath, Dispatcher);
             _webView2WrapperInstance.InitializeWebView(Docker);
-            _webView2WrapperInstance.ListenHtmlChange();
+            _webView2WrapperInstance.SubscribeToHtmlChanged();
         }
 
         public void Navigate(string newPath)
