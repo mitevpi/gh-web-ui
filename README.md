@@ -13,7 +13,7 @@
 
 Prototype for building a Grasshopper interface using native web components.
 
-# Development
+## Development
 
 1. Clone locally
 2. Re-link and restore dependencies
@@ -28,6 +28,7 @@ If you need/want to make modifications/contributions to this package, please ref
 
 If you just want to *use* the package, please refer to the [Releases section of GitHub](https://github.com/mitevpi/gh-web-ui/releases).
 From there, download the latest release, unzip the file, and paste the contents into `%appdata%\Grasshopper\Libraries`.
+
 
 ### Hard-Coded UI
 
@@ -100,10 +101,6 @@ and so much more - I think it makes sense to use it as the backbone for the proj
 ## Known Issues
 
 - [GitHub Issues](https://github.com/mitevpi/gh-web-ui/issues)
-- Way too many `.dll` files are being copied at build to the `%appdata%/Grasshopper/Libraries` directory. This is 
-because omitting one (or more) of the `.dll` files causes some WebView2 methods to fail without warning, notification,
-or any other feedback mechanism. Need to figure out which files are the source of the problem and omit the packaging
-of all others. (Suspect that this is in the `System.XXX` series...)
 
 ### Credits
 
