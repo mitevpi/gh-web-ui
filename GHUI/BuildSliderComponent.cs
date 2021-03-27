@@ -1,4 +1,5 @@
 ﻿using System;
+using GHUI.Classes;
 using Grasshopper.Kernel;
 
 namespace GHUI
@@ -59,15 +60,6 @@ namespace GHUI
                 $"<input type='range' id='{id}' name='{name}' value='{value}' min='{min}' max='{max}' style='{cssStyle}'>";
 
             da.SetData(0, sliderString);
-
-            GH_Document doc = OnPingDocument();
-            doc?.ScheduleSolution(500, ScheduleCallback);
-        }
-
-
-        private void ScheduleCallback(GH_Document document)
-        {
-            ExpireSolution(false);
         }
 
         protected override System.Drawing.Bitmap Icon => Properties.Resources.slider;

@@ -100,9 +100,69 @@ namespace GHUI.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap checkbox {
+            get {
+                object obj = ResourceManager.GetObject("checkbox", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap color {
+            get {
+                object obj = ResourceManager.GetObject("color", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap date {
+            get {
+                object obj = ResourceManager.GetObject("date", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap define_setters {
+            get {
+                object obj = ResourceManager.GetObject("define_setters", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap div {
             get {
                 object obj = ResourceManager.GetObject("div", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap grid {
+            get {
+                object obj = ResourceManager.GetObject("grid", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap image {
+            get {
+                object obj = ResourceManager.GetObject("image", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -122,19 +182,16 @@ namespace GHUI.Properties {
         ///    const returnObjects = [];
         ///    const inputElements = document.getElementsByTagName(&apos;input&apos;);
         ///
-        ///    for (const c of inputElements) {
+        ///    for (const htmlElement of inputElements) {
         ///        const inputData = new Object();
         ///
-        ///        inputData.id = c.id;
-        ///        inputData.value = c.value;
-        ///        inputData.name = c.name;
-        ///        inputData.max = c.max;
-        ///        inputData.min = c.min;
-        ///        inputData.isChecked = c.checked;
-        ///        inputData.type = c.type;
-        ///        returnObjects.push(inputData);
-        ///    }
-        ///    return  [rest of string was truncated]&quot;;.
+        ///        inputData.id = htmlElement.id;
+        ///        inputData.value = handleValueExtract(htmlElement);
+        ///        inputData.name = htmlElement.name;
+        ///        inputData.max = htmlElement.max;
+        ///        inputData.min = htmlElement.min;
+        ///        inputData.isChecked = htmlElement.checked;
+        ///         [rest of string was truncated]&quot;;.
         /// </summary>
         internal static string QueryInputElementsInDOM {
             get {
@@ -145,9 +202,65 @@ namespace GHUI.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap radio {
+            get {
+                object obj = ResourceManager.GetObject("radio", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to function setValues(elementId, value) {
+        ///    const elem = document.getElementById(elementId);
+        ///
+        ///    if (elem === null) return;
+        ///
+        ///    // if it&apos;s text
+        ///    if (elem.innerText) {
+        ///        elem.innerText = value;
+        ///    }
+        ///
+        ///    // if it&apos;s an input type
+        ///    else if (elem.type) {
+        ///
+        ///        // if checkbox or radio, convert to boolean and apply to checked property
+        ///        if (elem.type === &apos;checkbox&apos; || elem.type === &apos;radio&apos; ) {
+        ///            elem.checked = (value.toLowerCase() === &apos;true&apos;);
+        ///        }
+        ///        // [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string SetValuesInDom {
+            get {
+                return ResourceManager.GetString("SetValuesInDom", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap slider {
             get {
                 object obj = ResourceManager.GetObject("slider", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap text_input {
+            get {
+                object obj = ResourceManager.GetObject("text_input", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap time {
+            get {
+                object obj = ResourceManager.GetObject("time", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

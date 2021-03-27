@@ -1,13 +1,15 @@
 # Grasshopper Web UI
 
 [![Generic badge](https://img.shields.io/badge/Demo-YouTube-Green.svg)](https://youtu.be/S-c7z2ezoZo)
+[![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/mitevpi/gh-web-ui)](https://github.com/mitevpi/gh-web-ui/releases)
+[![GitHub](https://img.shields.io/github/license/mitevpi/gh-web-ui)](https://github.com/mitevpi/gh-web-ui/blob/master/LICENSE)
 
 
-![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/mitevpi/gh-web-ui)
-![GitHub last commit](https://img.shields.io/github/last-commit/mitevpi/gh-web-ui)
-![GitHub issues](https://img.shields.io/github/issues/mitevpi/gh-web-ui)
-![GitHub contributors](https://img.shields.io/github/contributors/mitevpi/gh-web-ui)
-![GitHub](https://img.shields.io/github/license/mitevpi/gh-web-ui)
+[![GitHub last commit](https://img.shields.io/github/last-commit/mitevpi/gh-web-ui)](https://github.com/mitevpi/gh-web-ui/commits/master)
+[![GitHub issues](https://img.shields.io/github/issues/mitevpi/gh-web-ui)](https://github.com/mitevpi/gh-web-ui/issues)
+[![GitHub closed issues](https://img.shields.io/github/issues-closed-raw/mitevpi/gh-web-ui)](https://github.com/mitevpi/gh-web-ui/issues?q=is%3Aissue+is%3Aclosed)
+[![GitHub contributors](https://img.shields.io/github/contributors/mitevpi/gh-web-ui)](https://github.com/mitevpi/gh-web-ui/graphs/contributors)
+
 
 Prototype for building a Grasshopper interface using native web components.
 
@@ -37,9 +39,9 @@ the [`Web UI`](GHUI/Web%20UI) folder.
 After building the `.gha` from source, you can open the [Grasshopper File](grasshopper/ServeInterface.gh) for testing of this workflow.
 
 
-|                          Links                          |                          Sample                          |
-| :-----------------------------------------------------: | :------------------------------------------------------: |
-|        [Vue.js UI](GHUI/Web%20UI/InputVue.html)         |    ![Vue.js UI](assets/images/vue-ui.png)    |
+|                         Links                          |                     Sample                      |
+| :----------------------------------------------------: | :---------------------------------------------: |
+|        [Vue.js UI](GHUI/Web%20UI/InputVue.html)        |     ![Vue.js UI](assets/images/vue-ui.png)      |
 | [Bootstrap HTML UI](GHUI/Web%20UI/InputBootstrap.html) | ![Bootstrap UI](assets/images/bootstrap-ui.png) |
 
 
@@ -50,20 +52,42 @@ This method of using the package is closer to the familiar Grasshopper UI paradi
 HTML-based interface without needing to write any kind of textual code. This is still a **Work-In-Progress** 
 and will remain that way for quite some time as there are very many elements that must be supported.
 
-|                          Links                          |                          Sample                          |
-| :-----------------------------------------------------: | :------------------------------------------------------: |
-| [Custom GH UI](grasshopper/CreateInterfaceComplex.gh) | ![Custom GH UI](assets/images/created-ui-complex.png) |
+|                               Links                                |                           Sample                           |
+| :----------------------------------------------------------------: | :--------------------------------------------------------: |
+|       [Custom GH UI](grasshopper/CreateInterfaceComplex.gh)        |   ![Custom GH UI](assets/images/created-ui-complex.png)    |
+| [Advanced Custom GH UI](grasshopper/CreateInterfaceMoreComplex.gh) | ![Custom GH UI](assets/images/created-ui-more-complex.png) |
+
+
+## Support Map
+
+Currently, the following UI (HTML) [input components](https://www.w3schools.com/html/html_form_input_types.asp) are supported in 
+the specified contexts:
+
+
+| Component    | Read Value from HTML | Create in GH | Set Value from GH Output | Set Label/Props from GH Output |
+| ------------ | -------------------- | ------------ | ------------------------ | ------------------------------ |
+| Slider       | Yes                  | Yes          | Yes                      | No                             |
+| Button       | Yes                  | Yes          | No (Simulate Click)      | No                             |
+| Text Input   | Yes                  | Yes          | Yes                      | No                             |
+| Radio Button | Yes                  | Yes          | Yes                      | No                             |
+| Check Box    | Yes                  | Yes          | Yes                      | No                             |
+| Color        | Yes                  | Yes          | Yes                      | No                             |
+| Date         | Yes                  | Yes          | Yes                      | No                             |
+| Time         | Yes                  | Yes          | Yes                      | No                             |
+| Week         | Yes                  | No           | TBD                      | No                             |
+| File         | Maybe                | No           | Maybe                    | No                             |
+| Text Label   | N/A                  | Yes          | Yes                      | N/A                            |
+
 
 
 ## Tentative Roadmap
 
 ### Abstract
 
-At this stage, I'm not sure where this wants to go. All I know is that Human UI from Andrew Heumann has been
-an incredibly powerful force in the industry over the last X years - it helps us share and democratize
+Human UI from Andrew Heumann has been a powerful force in the industry over the last X years - it helps us share and democratize
 computational know-how and deliver it to our colleagues who may not be as techincally inclined. I think it's
 time for the next step in this journey. With the web becoming the standard for app development, interaction design,
-and so much more - I think it makes sense to use this as the backbone for the project.
+and so much more - I think it makes sense to use it as the backbone for the project.
 
 ### Roadmap
 

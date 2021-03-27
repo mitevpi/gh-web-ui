@@ -5,8 +5,6 @@ namespace GHUI
 {
     public class BuildDivComponent : GH_Component
     {
-        private string _oldString = null;
-
         /// <summary>
         /// Component for wrapping some HTML into a <div></div>.
         /// </summary>
@@ -43,15 +41,6 @@ namespace GHUI
 
             string sliderString = $"<div style='{cssStyle}'>{htmlToWrap}</div>";
             da.SetData(0, sliderString);
-
-            GH_Document doc = OnPingDocument();
-            doc?.ScheduleSolution(500, ScheduleCallback);
-        }
-
-
-        private void ScheduleCallback(GH_Document document)
-        {
-            ExpireSolution(false);
         }
 
         protected override System.Drawing.Bitmap Icon => Properties.Resources.div;

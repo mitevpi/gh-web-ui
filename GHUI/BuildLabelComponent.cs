@@ -6,23 +6,23 @@ namespace GHUI
     public class BuildLabelComponent : GH_Component
     {
         /// <summary>
-        /// Component for building a HTML label input component.
+        /// Component for building a HTML header component.
         /// </summary>
         public BuildLabelComponent()
-            : base("Create Label", "Label",
-                "Create a HTML Label Input.",
+            : base("Create Header", "Header",
+                "Create a HTML Header.",
                 "UI", "Create")
         {
         }
 
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddTextParameter("Name", "name", "The name of the label component.", GH_ParamAccess.item,
-                "label");
-            pManager.AddTextParameter("ID", "id", "The id of the label component.", GH_ParamAccess.item,
-                "label");
-            pManager.AddTextParameter("Value", "val", "The starting value of the label component.",
-                GH_ParamAccess.item, "label");
+            pManager.AddTextParameter("Name", "name", "The name of the header component.", GH_ParamAccess.item,
+                "header");
+            pManager.AddTextParameter("ID", "id", "The id of the header component.", GH_ParamAccess.item,
+                "header");
+            pManager.AddTextParameter("Value", "val", "The starting value of the header component.",
+                GH_ParamAccess.item, "header");
             pManager.AddNumberParameter("Scale", "scale", "The scale of heading to create (1-4).",
                 GH_ParamAccess.item, 1);
             pManager.AddTextParameter("CSS", "css", "The `style` attribute to apply to the element and its children.",
@@ -32,7 +32,7 @@ namespace GHUI
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddTextParameter("HTML", "html", "The HTML code for the created label input.",
+            pManager.AddTextParameter("HTML", "html", "The HTML code for the created header input.",
                 GH_ParamAccess.list);
         }
 
@@ -51,20 +51,11 @@ namespace GHUI
             da.GetData(3, ref scale);
             da.GetData(4, ref cssStyle);
 
-            // create a valid HTML string from the inputs for our label
+            // create a valid HTML string from the inputs for our header
             string labelString =
                 $"<h{scale} id='{id}' name='{name}' style='{cssStyle}'>{value}</h{scale}>";
 
             da.SetData(0, labelString);
-
-            GH_Document doc = OnPingDocument();
-            doc?.ScheduleSolution(500, ScheduleCallback);
-        }
-
-
-        private void ScheduleCallback(GH_Document document)
-        {
-            ExpireSolution(false);
         }
 
         protected override System.Drawing.Bitmap Icon => Properties.Resources.label;

@@ -41,5 +41,10 @@ namespace GHUI
         {
             _webView2WrapperInstance.Navigate(newPath);
         }
+
+        public void HandleSetters(Dictionary<string, string> setters)
+        {
+            _webView2WrapperInstance.HandleValueSetters(setters);
+        }
     }
 }

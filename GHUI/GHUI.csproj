@@ -132,13 +132,22 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BuildButtonComponent.cs" />
+    <Compile Include="BuildCheckBoxComponent.cs" />
+    <Compile Include="BuildColorComponent.cs" />
+    <Compile Include="BuildDateComponent.cs" />
     <Compile Include="BuildDivComponent.cs" />
+    <Compile Include="BuildImageComponent.cs" />
     <Compile Include="BuildLabelComponent.cs" />
+    <Compile Include="BuildRadioComponent.cs" />
     <Compile Include="BuildSliderComponent.cs" />
     <Compile Include="BuildHtmlUiComponent.cs" />
-    <Compile Include="Classes\GrasshopperUtil.cs" />
+    <Compile Include="BuildTextComponent.cs" />
+    <Compile Include="BuildTextInputComponent.cs" />
+    <Compile Include="BuildTimeComponent.cs" />
     <Compile Include="Classes\Models\DomClickModel.cs" />
+    <Compile Include="Classes\Util.cs" />
     <Compile Include="Classes\WebView2Wrapper.cs" />
+    <Compile Include="Classes\ComponentTemplate.cs" />
     <Compile Include="HtmlUiComponent.cs" />
     <Compile Include="GHUIInfo.cs" />
     <Compile Include="Classes\Models\DomInputModel.cs" />
@@ -148,6 +157,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="SettersDefineComponent.cs" />
+    <Compile Include="SetValuesComponent.cs" />
+    <Compile Include="StyleGridComponent.cs" />
     <Compile Include="WebWindow.xaml.cs">
       <DependentUpon>WebWindow.xaml</DependentUpon>
     </Compile>
@@ -165,7 +177,7 @@
   <ItemGroup>
     <EmbeddedResource Include="JS\QueryInputElementsInDOM.js" />
     <EmbeddedResource Include="JS\AddDocumentClickListener.js" />
-    <Content Include="Web UI\templateVue.html" />
+    <Content Include="JS\SetValuesInDom.js" />
     <Content Include="Web UI\InputBootstrap.html" />
     <Content Include="Web UI\InputVue.html" />
   </ItemGroup>

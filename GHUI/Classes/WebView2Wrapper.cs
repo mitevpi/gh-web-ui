@@ -24,7 +24,7 @@ namespace GHUI.Classes
         /// <summary>
         /// The dispatcher handling the execution of the WPF host Window.
         /// </summary>
-        private Dispatcher _dispatcher;
+        private readonly Dispatcher _dispatcher;
 
         /// <summary>
         /// The directory where the HTML file used for the UI lives.
@@ -36,14 +36,6 @@ namespace GHUI.Classes
         /// Grasshopper/Libraries directory.
         /// </summary>
         private string ExecutingLocation => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\temp";
-
-        /// <summary>
-        /// The JS script to be injected at runtime to query the DOM for changes
-        /// as the user interacts with the inputs.
-        /// </summary>
-        private string DomQueryScript => Properties.Resources.QueryInputElementsInDOM;
-
-        private string ListenerScript => Properties.Resources.AddDocumentClickListener;
 
         /// <summary>
         ///The WebView2Wrapper instance which is being executed in this component.
@@ -67,6 +59,9 @@ namespace GHUI.Classes
         /// </summary>
         private DevToolsProtocolHelper _cdpHelper;
 
+        // HELPERS
+        private Dictionary<string, string> _oldSetters;
+
         // PUBLIC FIELDS
         /// <summary>
         /// List of the current values of all the input elements in the DOM.
@@ -85,6 +80,30 @@ namespace GHUI.Classes
         {
             _htmlPath = htmlPath;
             _dispatcher = dispatcher;
+            _oldSetters = new Dictionary<string, string>();
+        }
+
+        /// <summary>
+        /// Handle the setting of values when the user triggers it through GH.
+        /// </summary>
+        /// <param name="setters">A dictionary of the ids of the HTML elements to set the values of and the
+        /// respective values to set for those ids.</param>
+        /// TODO: EXECUTE CHANGE VALUE SCRIPT ONLY FOR ITEMS WHICH ARE CHANGED, NOT ALL ELEMENTS
+        public void HandleValueSetters(Dictionary<string, string> setters)
+        {
+            // if the values haven't changed, don't do anything
+            bool same = Util.CompareDictionaries(_oldSetters, setters);
+            if (same) return;
+
+            // if at least one value in the dictionary has changed, execute the setter script
+            _oldSetters = setters;
+            _dispatcher.BeginInvoke(new Action(() =>
+            {
+                foreach (KeyValuePair<string, string> s in setters)
+                {
+                    _webView.ExecuteScriptAsync($"setValues('{s.Key}','{s.Value}');");
+                }
+            }));
         }
 
         /// <summary>
@@ -117,10 +136,10 @@ namespace GHUI.Classes
             // initialize the webview 2 instance
             try
             {
-                var env = await CoreWebView2Environment.CreateAsync(null, ExecutingLocation);
+                _webView.CoreWebView2InitializationCompleted += OnWebViewInitializationCompleted;
+                CoreWebView2Environment env = await CoreWebView2Environment.CreateAsync(null, ExecutingLocation);
                 await _webView.EnsureCoreWebView2Async(env);
-                await _webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(ListenerScript);
-                _webView.CoreWebView2InitializationCompleted += Navigate;
+
                 _webView.WebMessageReceived += OnWebViewInteraction;
                 _webView.NavigationCompleted += OnWebViewNavigationCompleted;
                 //InitializeDevToolsProtocolHelper();
@@ -130,6 +149,21 @@ namespace GHUI.Classes
             {
                 MessageBox.Show(ex.Message);
             }
+        }
+
+        /// <summary>
+        /// What to do when WebView is initialized.(Navigate to the source, and add the any JS scripts/functions
+        /// which need to be defined at startup)
+        /// </summary>
+        private void OnWebViewInitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
+        {
+            if (_webView?.CoreWebView2 == null) return;
+            _webView.Source = new Uri(_htmlPath);
+            _webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(
+                Properties.Resources.AddDocumentClickListener);
+            _webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(Properties.Resources
+                .QueryInputElementsInDOM);
+            _webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(Properties.Resources.SetValuesInDom);
         }
 
         private async void RunDomInputQuery(DomClickModel clickModel)
@@ -148,7 +182,7 @@ namespace GHUI.Classes
         private async Task RunDomInputQuery()
         {
             // get the results of the DOM `input` element query script, and abort if none found
-            string scriptResult = await _webView.ExecuteScriptAsync(DomQueryScript);
+            string scriptResult = await _webView.ExecuteScriptAsync("queryInputElements();");
             dynamic deserializedDomModels = JsonConvert.DeserializeObject(scriptResult);
             if (deserializedDomModels == null) return;
 
@@ -178,7 +212,6 @@ namespace GHUI.Classes
             _dispatcher.BeginInvoke(new Action(() => { RunDomInputQuery(clickData); }));
         }
 
-        // TODO: OUTPUT RESULT OF BUTTON CLICK
         private void HandleButtonClick(DomClickModel clickModel)
         {
             //if (clickModel.targetType != "button") return;
@@ -239,22 +272,11 @@ namespace GHUI.Classes
         /// </summary>
         private void OnHtmlChanged(object source, FileSystemEventArgs e)
         {
-            _dispatcher.Invoke(() =>
+            _dispatcher.BeginInvoke(new Action(() =>
             {
                 //RunDomInputQuery();
                 _webView.Reload();
-            });
-        }
-
-        /// <summary>
-        /// Navigate to a new HTML file path.
-        /// </summary>
-        private void Navigate(object o, EventArgs e)
-        {
-            if (_webView?.CoreWebView2 != null)
-            {
-                _webView.Source = new Uri(_htmlPath);
-            }
+            }));
         }
 
         /// <summary>
@@ -263,6 +285,7 @@ namespace GHUI.Classes
         /// <param name="newPath">The file path of the new HTML file to load.</param>
         public void Navigate(string newPath)
         {
+            //if (_htmlPath == newPath) return;
             _dispatcher.BeginInvoke(new Action(() =>
             {
                 _htmlPath = newPath;

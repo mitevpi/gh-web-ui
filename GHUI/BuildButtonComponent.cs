@@ -52,15 +52,6 @@ namespace GHUI
                 $"<input type='button' id='{id}' name='{name}' value='{value}' style='{cssStyle}'>";
 
             da.SetData(0, buttonString);
-
-            GH_Document doc = OnPingDocument();
-            doc?.ScheduleSolution(500, ScheduleCallback);
-        }
-
-
-        private void ScheduleCallback(GH_Document document)
-        {
-            ExpireSolution(false);
         }
 
         protected override System.Drawing.Bitmap Icon => Properties.Resources.button;
