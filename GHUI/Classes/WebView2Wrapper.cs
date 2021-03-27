@@ -217,10 +217,9 @@ namespace GHUI.Classes
             //if (clickModel.targetType != "button") return;
             // TODO: need to ensure that there is a unique id for each button, even when users
             // are not using the id/name feature correctly. for now we loop over all the possible buttons
-            var clickedButtons = _domInputModels.Where(m => m.type == clickModel.targetType &&
-                                                            m.id == clickModel.targetId ||
-                                                            m.name == clickModel.targetName);
-            //if (clickedButtons == null) return;
+            IEnumerable<DomInputModel> clickedButtons = _domInputModels.Where(m => m.type == clickModel.targetType);
+
+            clickedButtons = clickedButtons.Where(m => m.id == clickModel.targetId || m.name == clickModel.targetName);
             foreach (DomInputModel domInput in clickedButtons)
             {
                 domInput.value = "true";

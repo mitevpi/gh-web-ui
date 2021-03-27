@@ -175,6 +175,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Web UI\InputWallPricingScript.html" />
     <EmbeddedResource Include="JS\QueryInputElementsInDOM.js" />
     <EmbeddedResource Include="JS\AddDocumentClickListener.js" />
     <Content Include="JS\SetValuesInDom.js" />
