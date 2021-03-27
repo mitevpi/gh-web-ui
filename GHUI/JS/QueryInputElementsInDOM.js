@@ -2,18 +2,29 @@
     const returnObjects = [];
     const inputElements = document.getElementsByTagName('input');
 
-    for (const c of inputElements) {
+    for (const htmlElement of inputElements) {
         const inputData = new Object();
 
-        inputData.id = c.id;
-        inputData.value = c.value;
-        inputData.name = c.name;
-        inputData.max = c.max;
-        inputData.min = c.min;
-        inputData.isChecked = c.checked;
-        inputData.type = c.type;
+        inputData.id = htmlElement.id;
+        inputData.value = handleValueExtract(htmlElement);
+        inputData.name = htmlElement.name;
+        inputData.max = htmlElement.max;
+        inputData.min = htmlElement.min;
+        inputData.isChecked = htmlElement.checked;
+        inputData.type = htmlElement.type;
         returnObjects.push(inputData);
     }
     return returnObjects;
 }
-queryInputElements();
+
+function handleValueExtract(htmlElement) {
+    if (htmlElement.type === 'checkbox') {
+        return htmlElement.checked;
+    } else if (htmlElement.type === 'radio') {
+        return htmlElement.checked;
+    } else {
+        return htmlElement.value;
+    }
+}
+
+//queryInputElements();

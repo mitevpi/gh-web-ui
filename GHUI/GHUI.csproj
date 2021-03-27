@@ -131,9 +131,23 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BuildButtonComponent.cs" />
+    <Compile Include="BuildCheckBoxComponent.cs" />
+    <Compile Include="BuildColorComponent.cs" />
+    <Compile Include="BuildDateComponent.cs" />
+    <Compile Include="BuildDivComponent.cs" />
+    <Compile Include="BuildImageComponent.cs" />
+    <Compile Include="BuildLabelComponent.cs" />
+    <Compile Include="BuildRadioComponent.cs" />
     <Compile Include="BuildSliderComponent.cs" />
     <Compile Include="BuildHtmlUiComponent.cs" />
+    <Compile Include="BuildTextComponent.cs" />
+    <Compile Include="BuildTextInputComponent.cs" />
+    <Compile Include="BuildTimeComponent.cs" />
+    <Compile Include="Classes\Models\DomClickModel.cs" />
+    <Compile Include="Classes\Util.cs" />
     <Compile Include="Classes\WebView2Wrapper.cs" />
+    <Compile Include="Classes\ComponentTemplate.cs" />
     <Compile Include="HtmlUiComponent.cs" />
     <Compile Include="GHUIInfo.cs" />
     <Compile Include="Classes\Models\DomInputModel.cs" />
@@ -143,6 +157,9 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="SettersDefineComponent.cs" />
+    <Compile Include="SetValuesComponent.cs" />
+    <Compile Include="StyleGridComponent.cs" />
     <Compile Include="WebWindow.xaml.cs">
       <DependentUpon>WebWindow.xaml</DependentUpon>
     </Compile>
@@ -158,12 +175,9 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="JS\QueryInputElementsInDOM.js">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </EmbeddedResource>
-    <Content Include="Resources\slider.png" />
-    <Content Include="Resources\web_window.png" />
-    <Content Include="Web UI\templateVue.html" />
+    <EmbeddedResource Include="JS\QueryInputElementsInDOM.js" />
+    <EmbeddedResource Include="JS\AddDocumentClickListener.js" />
+    <Content Include="JS\SetValuesInDom.js" />
     <Content Include="Web UI\InputBootstrap.html" />
     <Content Include="Web UI\InputVue.html" />
   </ItemGroup>
@@ -192,8 +206,6 @@ copy "$(TargetDir)\Microsoft.Web.WebView2.Core.dll" "$(AppData)\Grasshopper\libr
 copy "$(TargetDir)\Microsoft.Web.WebView2.DevToolsProtocolExtension.dll" "$(AppData)\Grasshopper\libraries"
 copy "$(TargetDir)\Microsoft.Web.WebView2.Wpf.dll" "$(AppData)\Grasshopper\libraries"
 copy "$(TargetDir)\Newtonsoft.Json.dll" "$(AppData)\Grasshopper\libraries"
-
-copy "$(TargetDir)\JS" "$(AppData)\Grasshopper\libraries"
 
 </PostBuildEvent>
   </PropertyGroup>

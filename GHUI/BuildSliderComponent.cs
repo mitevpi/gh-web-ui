@@ -1,16 +1,13 @@
 ﻿using System;
-using System.IO;
+using GHUI.Classes;
 using Grasshopper.Kernel;
 
 namespace GHUI
 {
     public class BuildSliderComponent : GH_Component
     {
-        private string _oldString = null;
-
         /// <summary>
-        /// Component for building a Vue.js UI into a HTML file within
-        /// Grasshopper.
+        /// Component for building a HTML slider input component.
         /// </summary>
         public BuildSliderComponent()
             : base("Create Slider", "Slider",
@@ -31,6 +28,8 @@ namespace GHUI
                 GH_ParamAccess.item, 0);
             pManager.AddNumberParameter("Max", "max", "The max value of the slider input component.",
                 GH_ParamAccess.item, 100);
+            pManager.AddTextParameter("CSS", "css", "The `style` attribute to apply to the element and its children.", GH_ParamAccess.item,
+                "");
         }
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
@@ -47,27 +46,20 @@ namespace GHUI
             double value = 50;
             double min = 0;
             double max = 100;
+            string cssStyle = null;
 
             da.GetData(0, ref name);
             da.GetData(1, ref id);
             da.GetData(2, ref value);
             da.GetData(3, ref min);
             da.GetData(4, ref max);
+            da.GetData(5, ref cssStyle);
 
             // create a valid HTML string from the inputs for our slider
             string sliderString =
-                $"<input type='range' id='{id}' name='{name}' value='{value}' min='{min}' max='{max}'>";
+                $"<input type='range' id='{id}' name='{name}' value='{value}' min='{min}' max='{max}' style='{cssStyle}'>";
 
             da.SetData(0, sliderString);
-
-            GH_Document doc = OnPingDocument();
-            doc?.ScheduleSolution(500, ScheduleCallback);
-        }
-
-
-        private void ScheduleCallback(GH_Document document)
-        {
-            ExpireSolution(false);
         }
 
         protected override System.Drawing.Bitmap Icon => Properties.Resources.slider;

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using Grasshopper.Kernel;
 
@@ -9,7 +10,7 @@ namespace GHUI
         private string _oldString = null;
 
         /// <summary>
-        /// Component for building a Vue.js UI into a HTML file within
+        /// Component for building a HTML UI into a HTML file within
         /// Grasshopper.
         /// </summary>
         public BuildHtmlUiComponent()
@@ -25,12 +26,24 @@ namespace GHUI
                 GH_ParamAccess.item);
             pManager.AddTextParameter("HTML String", "html", "The HTML string to write to a file.",
                 GH_ParamAccess.item);
+            pManager.AddTextParameter("Title", "title", "The title of your interface window.",
+                GH_ParamAccess.item, "UI");
+            pManager.AddTextParameter("CSS References", "css",
+                "URL paths of any external CSS stylesheets to be injected at runtime.",
+                GH_ParamAccess.list);
+            pManager.AddTextParameter("JS References", "js",
+                "URL paths of any external JavaScript to be injected at runtime.",
+                GH_ParamAccess.list);
+            pManager[3].Optional = true;
+            pManager[2].Optional = true;
+            pManager[4].Optional = true;
         }
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.AddBooleanParameter("Success", "out", "Status of HTML file creation.", GH_ParamAccess.item);
-            pManager.AddTextParameter("Path", "path", "The path at which the HTML file has been written.", GH_ParamAccess.item);
+            pManager.AddTextParameter("Path", "path", "The path at which the HTML file has been written.",
+                GH_ParamAccess.item);
         }
 
         protected override void SolveInstance(IGH_DataAccess da)
@@ -38,9 +51,23 @@ namespace GHUI
             // get input from gh component inputs
             string path = null;
             string htmlString = null;
+            string title = null;
+            List<string> stylesheets = new List<string>();
+            List<string> jsScripts = new List<string>();
 
             if (!da.GetData(0, ref path)) return;
             if (!da.GetData(1, ref htmlString)) return;
+            da.GetData(2, ref title);
+            da.GetDataList(3, stylesheets);
+            da.GetDataList(4, jsScripts);
+
+            // add document-level properties like title and links to stylesheets
+            string htmlTemplate =
+                $"<!DOCTYPE html><html lang=en><meta charset=utf-8><title>{title}</title>";
+
+            stylesheets?.ForEach(s => { htmlTemplate += $"<link href='{s}' rel=stylesheet>"; });
+            jsScripts?.ForEach(s => { htmlTemplate += $"<script src='{s}' crossorigin='anonymous'></script>"; });
+            htmlString = htmlTemplate + htmlString;
 
             // if the html string is the same, do nothing
             if (_oldString == htmlString)
@@ -52,7 +79,7 @@ namespace GHUI
             {
                 try
                 {
-                    File.WriteAllText(path, htmlString);
+                    File.WriteAllText(path, htmlTemplate + htmlString);
                     _oldString = htmlString;
                 }
                 catch (Exception e)
@@ -65,16 +92,8 @@ namespace GHUI
             // set status message and path output if component executed successfully
             da.SetData(0, true);
             da.SetData(1, path);
-
-            GH_Document doc = OnPingDocument();
-            doc?.ScheduleSolution(500, ScheduleCallback);
         }
 
-
-        private void ScheduleCallback(GH_Document document)
-        {
-            ExpireSolution(false);
-        }
 
         protected override System.Drawing.Bitmap Icon => Properties.Resources.web_window;
 

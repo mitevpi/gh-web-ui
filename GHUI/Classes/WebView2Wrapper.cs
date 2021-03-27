@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Timers;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
@@ -11,7 +11,6 @@ using GHUI.Classes.Models;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.Core.DevToolsProtocolExtension;
 using Newtonsoft.Json;
-using Timer = System.Timers.Timer;
 
 namespace GHUI.Classes
 {
@@ -25,7 +24,7 @@ namespace GHUI.Classes
         /// <summary>
         /// The dispatcher handling the execution of the WPF host Window.
         /// </summary>
-        private Dispatcher _dispatcher;
+        private readonly Dispatcher _dispatcher;
 
         /// <summary>
         /// The directory where the HTML file used for the UI lives.
@@ -37,14 +36,6 @@ namespace GHUI.Classes
         /// Grasshopper/Libraries directory.
         /// </summary>
         private string ExecutingLocation => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + "\\temp";
-
-        /// <summary>
-        /// The JS script to be injected at runtime to query the DOM for changes
-        /// as the user interacts with the inputs.
-        /// </summary>
-        private string DomQueryScript => File.ReadAllText(
-            Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) +
-            "\\QueryInputElementsInDOM.js");
 
         /// <summary>
         ///The WebView2Wrapper instance which is being executed in this component.
@@ -68,11 +59,8 @@ namespace GHUI.Classes
         /// </summary>
         private DevToolsProtocolHelper _cdpHelper;
 
-        /// <summary>
-        /// Timer for scheduling the recompute on the DOM query so the user can get
-        /// "real-time" inputs. TODO: fix to query only on DOM change.
-        /// </summary>
-        private Timer _timer;
+        // HELPERS
+        private Dictionary<string, string> _oldSetters;
 
         // PUBLIC FIELDS
         /// <summary>
@@ -92,37 +80,30 @@ namespace GHUI.Classes
         {
             _htmlPath = htmlPath;
             _dispatcher = dispatcher;
-            InitializeTimer();
+            _oldSetters = new Dictionary<string, string>();
         }
 
         /// <summary>
-        /// Run the DOM Query script (JS) to get all the input elements.
+        /// Handle the setting of values when the user triggers it through GH.
         /// </summary>
-        private async void RunDomInputQuery()
+        /// <param name="setters">A dictionary of the ids of the HTML elements to set the values of and the
+        /// respective values to set for those ids.</param>
+        /// TODO: EXECUTE CHANGE VALUE SCRIPT ONLY FOR ITEMS WHICH ARE CHANGED, NOT ALL ELEMENTS
+        public void HandleValueSetters(Dictionary<string, string> setters)
         {
-            string scriptResult = await _webView.ExecuteScriptAsync(DomQueryScript);
+            // if the values haven't changed, don't do anything
+            bool same = Util.CompareDictionaries(_oldSetters, setters);
+            if (same) return;
 
-            dynamic deserializedDomModels = JsonConvert.DeserializeObject(scriptResult);
-            List<DomInputModel> domInputModels = new List<DomInputModel>();
-            foreach (var s in deserializedDomModels)
+            // if at least one value in the dictionary has changed, execute the setter script
+            _oldSetters = setters;
+            _dispatcher.BeginInvoke(new Action(() =>
             {
-                DomInputModel domInputModel = JsonConvert.DeserializeObject<DomInputModel>(s.ToString());
-                domInputModels.Add(domInputModel);
-            }
-
-            _domInputModels = domInputModels;
-        }
-
-        /// <summary>
-        /// Initialize the timer which will query the DOM at the specified interval.
-        /// TODO: Figure out how to run this only when the user interacts with the DOM.
-        /// </summary>
-        private void InitializeTimer()
-        {
-            _timer = new Timer();
-            _timer.Elapsed += DisplayTimeEvent;
-            _timer.Interval = 1000; // 1000 ms is one second
-            _timer.Start();
+                foreach (KeyValuePair<string, string> s in setters)
+                {
+                    _webView.ExecuteScriptAsync($"setValues('{s.Key}','{s.Value}');");
+                }
+            }));
         }
 
         /// <summary>
@@ -155,9 +136,12 @@ namespace GHUI.Classes
             // initialize the webview 2 instance
             try
             {
-                var env = await CoreWebView2Environment.CreateAsync(null, ExecutingLocation);
+                _webView.CoreWebView2InitializationCompleted += OnWebViewInitializationCompleted;
+                CoreWebView2Environment env = await CoreWebView2Environment.CreateAsync(null, ExecutingLocation);
                 await _webView.EnsureCoreWebView2Async(env);
-                _webView.CoreWebView2InitializationCompleted += Navigate;
+
+                _webView.WebMessageReceived += OnWebViewInteraction;
+                _webView.NavigationCompleted += OnWebViewNavigationCompleted;
                 //InitializeDevToolsProtocolHelper();
                 //SubscribeToDocumentUpdated();
             }
@@ -168,11 +152,79 @@ namespace GHUI.Classes
         }
 
         /// <summary>
-        /// Run the DOM query method every tick of the timer.
+        /// What to do when WebView is initialized.(Navigate to the source, and add the any JS scripts/functions
+        /// which need to be defined at startup)
         /// </summary>
-        private void DisplayTimeEvent(object source, ElapsedEventArgs e)
+        private void OnWebViewInitializationCompleted(object sender, CoreWebView2InitializationCompletedEventArgs e)
         {
-            _dispatcher.BeginInvoke(new Action(() => { RunDomInputQuery(); }));
+            if (_webView?.CoreWebView2 == null) return;
+            _webView.Source = new Uri(_htmlPath);
+            _webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(
+                Properties.Resources.AddDocumentClickListener);
+            _webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(Properties.Resources
+                .QueryInputElementsInDOM);
+            _webView.CoreWebView2.AddScriptToExecuteOnDocumentCreatedAsync(Properties.Resources.SetValuesInDom);
+        }
+
+        private async void RunDomInputQuery(DomClickModel clickModel)
+        {
+            await RunDomInputQuery();
+            // handle output for buttons
+            if (clickModel.targetType == "button")
+            {
+                HandleButtonClick(clickModel);
+            }
+        }
+
+        /// <summary>
+        /// Run the DOM Query script (JS) to get all the input elements.
+        /// </summary>
+        private async Task RunDomInputQuery()
+        {
+            // get the results of the DOM `input` element query script, and abort if none found
+            string scriptResult = await _webView.ExecuteScriptAsync("queryInputElements();");
+            dynamic deserializedDomModels = JsonConvert.DeserializeObject(scriptResult);
+            if (deserializedDomModels == null) return;
+
+            _domInputModels = new List<DomInputModel>();
+            foreach (dynamic s in deserializedDomModels)
+            {
+                DomInputModel domInputModel = JsonConvert.DeserializeObject<DomInputModel>(s.ToString());
+                _domInputModels.Add(domInputModel);
+            }
+        }
+
+        /// <summary>
+        /// Queries the DOM when the interface is first loaded and also when it is Reloaded due to
+        /// a change in the HTML.
+        /// </summary>
+        private void OnWebViewNavigationCompleted(object sender, CoreWebView2NavigationCompletedEventArgs e)
+        {
+            RunDomInputQuery();
+        }
+
+        /// <summary>
+        /// What to do when the listener script returns a value.
+        /// </summary>
+        private void OnWebViewInteraction(object sender, CoreWebView2WebMessageReceivedEventArgs e)
+        {
+            DomClickModel clickData = JsonConvert.DeserializeObject<DomClickModel>(e.WebMessageAsJson);
+            _dispatcher.BeginInvoke(new Action(() => { RunDomInputQuery(clickData); }));
+        }
+
+        private void HandleButtonClick(DomClickModel clickModel)
+        {
+            //if (clickModel.targetType != "button") return;
+            // TODO: need to ensure that there is a unique id for each button, even when users
+            // are not using the id/name feature correctly. for now we loop over all the possible buttons
+            var clickedButtons = _domInputModels.Where(m => m.type == clickModel.targetType &&
+                                                            m.id == clickModel.targetId ||
+                                                            m.name == clickModel.targetName);
+            //if (clickedButtons == null) return;
+            foreach (DomInputModel domInput in clickedButtons)
+            {
+                domInput.value = "true";
+            }
         }
 
         /// <summary>
@@ -193,33 +245,9 @@ namespace GHUI.Classes
         }
 
         /// <summary>
-        /// Navigate to a new HTML file path.
-        /// </summary>
-        private void Navigate(object o, EventArgs e)
-        {
-            if (_webView?.CoreWebView2 != null)
-            {
-                _webView.Source = new Uri(_htmlPath);
-            }
-        }
-
-        /// <summary>
-        /// Navigate to a new HTML file path.
-        /// </summary>
-        /// <param name="newPath">The file path of the new HTML file to load.</param>
-        public void Navigate(string newPath)
-        {
-            _dispatcher.BeginInvoke(new Action(() =>
-            {
-                _htmlPath = newPath;
-                _webView.Source = new Uri(_htmlPath);
-            }));
-        }
-
-        /// <summary>
         /// Initialize a file-watcher object on the HTML file being used.
         /// </summary>
-        public void ListenHtmlChange()
+        public void SubscribeToHtmlChanged()
         {
             _watcher = new FileSystemWatcher(Directory)
             {
@@ -244,7 +272,25 @@ namespace GHUI.Classes
         /// </summary>
         private void OnHtmlChanged(object source, FileSystemEventArgs e)
         {
-            _dispatcher.Invoke(() => { _webView.Reload(); });
+            _dispatcher.BeginInvoke(new Action(() =>
+            {
+                //RunDomInputQuery();
+                _webView.Reload();
+            }));
+        }
+
+        /// <summary>
+        /// Navigate to a new HTML file path.
+        /// </summary>
+        /// <param name="newPath">The file path of the new HTML file to load.</param>
+        public void Navigate(string newPath)
+        {
+            //if (_htmlPath == newPath) return;
+            _dispatcher.BeginInvoke(new Action(() =>
+            {
+                _htmlPath = newPath;
+                _webView.Source = new Uri(_htmlPath);
+            }));
         }
     }
 }
