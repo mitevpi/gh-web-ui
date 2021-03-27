@@ -3,6 +3,7 @@ using System.Threading;
 using System.Windows.Threading;
 using Grasshopper.Kernel;
 using Grasshopper.Kernel.Types;
+using Microsoft.Web.WebView2.Core.DevToolsProtocolExtension;
 
 namespace GHUI
 {
@@ -17,6 +18,8 @@ namespace GHUI
         private Thread _uiThread;
 
         private string _oldPath;
+        private double _height = 800;
+        private double _width = 500;
 
         /// <summary>
         /// Launch a UI Window from a HTML file.
@@ -36,6 +39,10 @@ namespace GHUI
                 GH_ParamAccess.item, false);
             pManager.AddTextParameter("Title", "title", "The title name for the UI window.",
                 GH_ParamAccess.item, "UI");
+            pManager.AddNumberParameter("Height", "height", "The desired starting height of the UI window.",
+                GH_ParamAccess.item, 800);
+            pManager.AddNumberParameter("Width", "width", "The desired starting width of the UI window.",
+                GH_ParamAccess.item, 500);
         }
 
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
@@ -58,6 +65,8 @@ namespace GHUI
             if (!da.GetData(0, ref path)) return;
             if (!da.GetData<bool>(1, ref show)) return;
             da.GetData(2, ref title);
+            da.GetData(3, ref _height);
+            da.GetData(4, ref _width);
 
 
             if (!show) return;
@@ -101,6 +110,8 @@ namespace GHUI
                 _webWindow.Closed += _webWindow_Closed;
                 _webWindow.Show();
                 _webWindow.Title = title;
+                _webWindow.Height = _height;
+                _webWindow.Width = _width;
                 Dispatcher.Run();
             });
 

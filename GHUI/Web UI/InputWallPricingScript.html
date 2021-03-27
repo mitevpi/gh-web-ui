@@ -1,0 +1,99 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+    <meta charset="utf-8" />
+    <title>HTML Grasshopper Interface</title>
+    <meta name="author" content="Petr Mitev">
+    <style>
+        html,
+        body {
+            margin: 5px;
+            padding: 0;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: auto auto;
+            padding: 10px;
+        }
+        .grid-container-results {
+            display: grid;
+            grid-template-columns: auto auto auto;
+            padding: 10px;
+        }
+
+        .label-container {
+            display: flex;
+            align-items: center
+        }
+
+        label {
+            margin-right: 10px;
+        }
+
+        #app {
+            font-family: "Avenir", Helvetica, Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            color: #2c3e50;
+        }
+    </style>
+
+</head>
+
+<body>
+    <br>
+    <div id="app">
+        <img width="200"
+            src="https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Fmaxcdn.icons8.com%2FShare%2Ficon%2Fdotty%2FScience%2Fcalculator1600.png&f=1&nofb=1"
+            alt="App Logo">
+        <h1>Wall Pricing Calculator</h1>
+        <div class="grid-container">
+            <div class="label-container">
+                <label for="length">Wall Length</label>
+                <input type="range" id="length" min="1" max="200" step="1" value="50">
+            </div>
+            <div class="label-container">
+                <label for="width">Wall Width</label>
+                <input type="range" id="width" min="1" max="10" step="1" value="2">
+            </div>
+        </div>
+
+        <div class="grid-container">
+            <div class="label-container">
+                <label for="studSpace">Stud Spacing</label>
+                <input type="range" id="studSpace" min="1" max="10" step="0.1" value="4">
+            </div>
+            <div class="label-container">
+                <label for="studSize">Stud Sizing</label>
+                <input type="range" id="studSize" min="0.1" max="2" step="0.1" value="0.5">
+            </div>
+        </div>
+
+        <!-- RESULTS -->
+        <h2 style="margin-bottom: 0px;">Results</h2>
+        <div class="grid-container-results">
+            <div class="label-container">
+                <label for="wallAreaLabel">Wall Area</label>
+                <p id="wallAreaLabel">100</p>
+            </div>
+            <div class="label-container">
+                <label for="wallVolumeLabel">Wall Volume</label>
+                <p id="wallVolumeLabel">100</p>
+            </div>
+            <div class="label-container">
+                <label for="studCountLabel">Stud Count</label>
+                <p id="studCountLabel">100</p>
+            </div>
+        </div>
+        <div>
+            <input type="button" id="exportButton" value="Export Results">
+        </div>
+
+
+    </div>
+</body>
+
+</html>

@@ -2,13 +2,13 @@
 
 namespace GHUI.Classes
 {
-    public abstract class ComponentTemplate : GH_Component
+    public abstract class GH_ComponentTemplate : GH_Component
     {
-        private string _name;
-        private string _id;
-        private string _cssStyle;
+        protected string name;
+        protected string id;
+        protected string cssStyle;
 
-        public ComponentTemplate(string name, string nickName, string description, string category, string subCategory)
+        public GH_ComponentTemplate(string name, string nickName, string description, string category, string subCategory)
             : base(name, nickName, description, category, subCategory)
         {
         }
@@ -32,16 +32,9 @@ namespace GHUI.Classes
 
         protected void GetStandardInputs(IGH_DataAccess da)
         {
-            da.GetData(0, ref _name);
-            da.GetData(1, ref _id);
-            da.GetData(2, ref _cssStyle);
-        }
-
-        protected override void SolveInstance(IGH_DataAccess da)
-        {
-            da.GetData(0, ref _name);
-            da.GetData(1, ref _id);
-            da.GetData(2, ref _cssStyle);
+            da.GetData("Name", ref name);
+            da.GetData("ID", ref id);
+            da.GetData("CSS", ref cssStyle);
         }
     }
 }

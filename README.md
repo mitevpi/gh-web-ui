@@ -1,6 +1,6 @@
 # Grasshopper Web UI
 
-[![Generic badge](https://img.shields.io/badge/Demo-YouTube-Green.svg)](https://youtu.be/S-c7z2ezoZo)
+[![Generic badge](https://img.shields.io/badge/Demo-YouTube-Green.svg)](https://youtu.be/kwYKU9ssaLQ)
 [![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/mitevpi/gh-web-ui)](https://github.com/mitevpi/gh-web-ui/releases)
 [![GitHub](https://img.shields.io/github/license/mitevpi/gh-web-ui)](https://github.com/mitevpi/gh-web-ui/blob/master/LICENSE)
 
@@ -13,7 +13,7 @@
 
 Prototype for building a Grasshopper interface using native web components.
 
-# Development
+## Development
 
 1. Clone locally
 2. Re-link and restore dependencies
@@ -29,6 +29,7 @@ If you need/want to make modifications/contributions to this package, please ref
 If you just want to *use* the package, please refer to the [Releases section of GitHub](https://github.com/mitevpi/gh-web-ui/releases).
 From there, download the latest release, unzip the file, and paste the contents into `%appdata%\Grasshopper\Libraries`.
 
+
 ### Hard-Coded UI
 
 The simplest way to use this package is as a dedicated input-receiver by supplying a hard-coded HTML file. This would allow you
@@ -36,13 +37,14 @@ to read user inputs, but not add any information to the interface. It would requ
 has basic web-coding skills, as they're needed to write the interface. Samples of these kinds of interfaces can be found in
 the [`Web UI`](GHUI/Web%20UI) folder.
 
-After building the `.gha` from source, you can open the [Grasshopper File](grasshopper/ServeInterface.gh) for testing of this workflow.
+After building the `.gha` from source, you can open the [Grasshopper File `ServeInterface.gh`](grasshopper/ServeInterface.gh) for testing of this workflow.
 
 
-|                         Links                          |                     Sample                      |
-| :----------------------------------------------------: | :---------------------------------------------: |
-|        [Vue.js UI](GHUI/Web%20UI/InputVue.html)        |     ![Vue.js UI](assets/images/vue-ui.png)      |
-| [Bootstrap HTML UI](GHUI/Web%20UI/InputBootstrap.html) | ![Bootstrap UI](assets/images/bootstrap-ui.png) |
+|                                                          Links                                                          |                              Image                              |
+| :---------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------: |
+|             [Vue.js UI](GHUI/Web%20UI/InputVue.html) -  [ServeInterface.gh](grasshopper/ServeInterface.gh)              |             ![Vue.js UI](assets/images/vue-ui.png)              |
+|       [Bootstrap HTML UI](GHUI/Web%20UI/InputBootstrap.html) - [ServeInterface.gh](grasshopper/ServeInterface.gh)       |         ![Bootstrap UI](assets/images/bootstrap-ui.png)         |
+| [Vanilla HTML UI](GHUI/Web%20UI/InputBootstrap.html) - [SampleScriptHardcoded.gh](grasshopper/SampleScriptHardcoded.gh) | ![Vanilla HTML UI](assets/images/wall-calculator-hardcoded.png) |
 
 
 ### Grasshopper-Created UI
@@ -52,7 +54,7 @@ This method of using the package is closer to the familiar Grasshopper UI paradi
 HTML-based interface without needing to write any kind of textual code. This is still a **Work-In-Progress** 
 and will remain that way for quite some time as there are very many elements that must be supported.
 
-|                               Links                                |                           Sample                           |
+|                       Grasshopper Definition                       |                           Image                            |
 | :----------------------------------------------------------------: | :--------------------------------------------------------: |
 |       [Custom GH UI](grasshopper/CreateInterfaceComplex.gh)        |   ![Custom GH UI](assets/images/created-ui-complex.png)    |
 | [Advanced Custom GH UI](grasshopper/CreateInterfaceMoreComplex.gh) | ![Custom GH UI](assets/images/created-ui-more-complex.png) |
@@ -100,10 +102,6 @@ and so much more - I think it makes sense to use it as the backbone for the proj
 ## Known Issues
 
 - [GitHub Issues](https://github.com/mitevpi/gh-web-ui/issues)
-- Way too many `.dll` files are being copied at build to the `%appdata%/Grasshopper/Libraries` directory. This is 
-because omitting one (or more) of the `.dll` files causes some WebView2 methods to fail without warning, notification,
-or any other feedback mechanism. Need to figure out which files are the source of the problem and omit the packaging
-of all others. (Suspect that this is in the `System.XXX` series...)
 
 ### Credits
 

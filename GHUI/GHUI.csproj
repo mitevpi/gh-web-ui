@@ -147,7 +147,7 @@
     <Compile Include="Classes\Models\DomClickModel.cs" />
     <Compile Include="Classes\Util.cs" />
     <Compile Include="Classes\WebView2Wrapper.cs" />
-    <Compile Include="Classes\ComponentTemplate.cs" />
+    <Compile Include="Classes\GH_ComponentTemplate.cs" />
     <Compile Include="HtmlUiComponent.cs" />
     <Compile Include="GHUIInfo.cs" />
     <Compile Include="Classes\Models\DomInputModel.cs" />
@@ -175,6 +175,7 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Web UI\InputWallPricingScript.html" />
     <EmbeddedResource Include="JS\QueryInputElementsInDOM.js" />
     <EmbeddedResource Include="JS\AddDocumentClickListener.js" />
     <Content Include="JS\SetValuesInDom.js" />
