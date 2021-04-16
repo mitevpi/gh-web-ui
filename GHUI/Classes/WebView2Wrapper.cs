@@ -248,6 +248,8 @@ namespace GHUI.Classes
         /// </summary>
         public void SubscribeToHtmlChanged()
         {
+            if (!System.IO.Directory.Exists(Directory))
+                throw new System.IO.DirectoryNotFoundException($"Can not find: \"{Directory}\" on this computer");
             _watcher = new FileSystemWatcher(Directory)
             {
                 NotifyFilter = NotifyFilters.LastAccess

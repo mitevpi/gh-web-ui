@@ -63,6 +63,11 @@ namespace GHUI
 
             // get input
             if (!da.GetData(0, ref path)) return;
+            if (!System.IO.File.Exists(path))
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, $"File path: \"{path}\" not found on this computer");
+                return;
+            }
             if (!da.GetData<bool>(1, ref show)) return;
             da.GetData(2, ref title);
             da.GetData(3, ref _height);
