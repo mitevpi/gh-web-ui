@@ -39,6 +39,12 @@ namespace GHUI
             if (!da.GetDataList(0, ids)) return;
             if (!da.GetDataList(1, vals)) return;
 
+            if(ids.Count != vals.Count)
+            {
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, "Amount of IDs and Values must be equal");
+                return;
+            }
+
             //List<DomSetValueModelGoo> setValueModels =
             //    ids.Select((t, i) => new DomSetValueModelGoo() {id = t, value = vals[i]}).ToList();
 

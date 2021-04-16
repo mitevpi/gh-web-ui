@@ -56,6 +56,12 @@ namespace GHUI
             List<string> jsScripts = new List<string>();
 
             if (!da.GetData(0, ref path)) return;
+            if(!System.IO.File.Exists(path))
+            { 
+                AddRuntimeMessage(GH_RuntimeMessageLevel.Error, $"File path: \"{path}\" not found on this computer");
+                da.SetData(0, false);
+                return;
+            }
             if (!da.GetData(1, ref htmlString)) return;
             da.GetData(2, ref title);
             da.GetDataList(3, stylesheets);
