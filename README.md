@@ -95,7 +95,7 @@ and so much more - I think it makes sense to use it as the backbone for the proj
 
 - Ensure a Chromium-based execution environment.
 - Read values from the DOM.
-- Account for most common input-type items that may be in the DOM/needed by users.
+- Account for most common [input-type](https://www.scaler.com/topics/html/html-forms/) items that may be in the DOM/needed by users.
 - Add elements/outputs to the DOM.
 - Create components to build an interface/DOM using Grasshopper only (no web dev knowledge).
 
